@@ -1,0 +1,44 @@
+# Normalise line endings so the repo stays LF regardless of the OS a
+# contributor works on. Prevents whole-file diffs when Windows and Linux
+# checkouts are mixed.
+* text=auto eol=lf
+
+# Explicit text types
+*.py     text diff=python
+*.html   text diff=html
+*.css    text diff=css
+*.js     text
+*.json   text
+*.md     text diff=markdown
+*.txt    text
+*.yml    text
+*.yaml   text
+*.cfg    text
+*.toml   text
+.gitignore     text
+.gitattributes text
+
+# Windows-only helper scripts must keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary — never diff, never touch line endings
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.pdf  binary
+*.ttf  binary
+*.otf  binary
+*.woff binary
+*.woff2 binary
+*.db   binary
+*.sqlite3 binary
+
+# Keep non-application assets out of the language statistics and collapse
+# generated output in pull-request diffs.
+design/**            linguist-documentation
+static/css/style.css  linguist-generated=true
+package-lock.json     linguist-generated=true

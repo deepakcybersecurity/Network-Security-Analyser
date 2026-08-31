@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same branch to save runner minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python-version }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # The suite patches app.scan_target, so no Nmap binary is required and
+      # no packets ever leave the runner.
+      - name: Run regression suite
+        run: python -m unittest -v test_app.py
+
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      # Report-only for now: surfaces issues without blocking the build.
+      # Drop `|| true` once the existing findings are cleared.
+      - name: Lint
+        run: ruff check . --output-format=github || true
+
+  css:
+    name: Verify Tailwind build is committed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install toolchain
+        run: npm ci
+
+      # Flask serves static/css/style.css directly, so the committed build
+      # output must match what src.css compiles to.
+      - name: Rebuild stylesheet
+        run: npm run build:css
+
+      - name: Fail if the committed stylesheet is stale
+        run: |
+          if ! git diff --quiet -- static/css/style.css; then
+            echo "::error file=static/css/style.css::style.css is out of date. Run 'npm run build:css' and commit the result."
+            git diff --stat -- static/css/style.css
+            exit 1
+          fi
+          echo "Committed stylesheet is up to date."

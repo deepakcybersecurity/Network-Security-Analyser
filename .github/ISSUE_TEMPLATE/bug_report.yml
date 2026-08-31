@@ -1,0 +1,109 @@
+name: 🐛 Bug report
+description: Report something that does not work as documented.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a report.
+
+        ⚠️ **If this is a security vulnerability, close this form** and file a
+        [private advisory](https://github.com/deepakcybersecurity/Network-Security-Analyser/security/advisories/new)
+        instead. See [SECURITY.md](https://github.com/deepakcybersecurity/Network-Security-Analyser/blob/main/SECURITY.md).
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I have searched existing issues and this is not a duplicate.
+          required: true
+        - label: This is not a security vulnerability (those go to a private advisory).
+          required: true
+        - label: I reproduced this on the latest commit on `main`.
+          required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the actual behaviour.
+      placeholder: Submitting a hostname returns HTTP 500 instead of a scan result.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Be specific enough that someone else can follow along.
+      placeholder: |
+        1. Start the app with `python app.py`
+        2. Open http://127.0.0.1:5000/
+        3. Enter `127.0.0.1` and click Scan
+        4. Observe the error banner
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area is affected?
+      options:
+        - Scanning / Nmap integration (scanner.py)
+        - Risk analysis (risk_analyzer.py)
+        - Database / persistence (database.py)
+        - API routes (app.py)
+        - Dashboard UI (templates, static)
+        - Report export
+        - Setup / installation
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Server logs
+      description: >
+        Paste the relevant console output. Errors are logged server-side, so the console
+        usually holds the real cause. **Redact any hostname or IP you do not want public.**
+      render: shell
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11 / Ubuntu 24.04 / macOS 15
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: Output of `python --version`.
+      placeholder: "3.12.10"
+    validations:
+      required: true
+
+  - type: input
+    id: nmap-version
+    attributes:
+      label: Nmap version
+      description: Output of `nmap --version`. Enter "not installed" if relevant.
+      placeholder: "7.95"
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: Screenshots, a failing test, or a suspected cause.

@@ -1,0 +1,343 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aegis Scanner - New Scan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Hanken+Grotesk:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#10131a",
+                        "on-secondary-container": "#a9b6c8",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#321300",
+                        "on-surface": "#e0e2ec",
+                        "outline": "#8b909f",
+                        "primary-fixed-dim": "#acc7ff",
+                        "on-tertiary-fixed-variant": "#753400",
+                        "surface-tint": "#acc7ff",
+                        "on-secondary": "#25313f",
+                        "surface-container-high": "#272a31",
+                        "secondary-fixed": "#d6e4f6",
+                        "error": "#ffb4ab",
+                        "background": "#10131a",
+                        "primary-fixed": "#d7e2ff",
+                        "on-primary-fixed": "#001a40",
+                        "primary": "#acc7ff",
+                        "primary-container": "#498fff",
+                        "on-primary": "#002f68",
+                        "inverse-primary": "#005bbf",
+                        "tertiary-fixed": "#ffdbc8",
+                        "on-tertiary-container": "#481e00",
+                        "on-primary-fixed-variant": "#004492",
+                        "surface-bright": "#363941",
+                        "secondary": "#bac8da",
+                        "on-background": "#e0e2ec",
+                        "tertiary-container": "#e47014",
+                        "on-surface-variant": "#c1c6d6",
+                        "surface-container": "#1d2027",
+                        "on-error": "#690005",
+                        "outline-variant": "#414754",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0b0e15",
+                        "secondary-container": "#3b4857",
+                        "on-secondary-fixed-variant": "#3b4857",
+                        "surface-container-highest": "#32353c",
+                        "tertiary-fixed-dim": "#ffb68b",
+                        "on-tertiary": "#522300",
+                        "surface-variant": "#32353c",
+                        "tertiary": "#ffb68b",
+                        "surface": "#10131a",
+                        "surface-container-low": "#181c23",
+                        "inverse-surface": "#e0e2ec",
+                        "on-secondary-fixed": "#101d2a",
+                        "on-primary-container": "#00285b",
+                        "inverse-on-surface": "#2d3038",
+                        "secondary-fixed-dim": "#bac8da"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "12px",
+                        "table-cell-padding": "8px 12px",
+                        "unit": "4px",
+                        "margin-page": "24px",
+                        "panel-padding": "16px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["JetBrains Mono"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "code": ["JetBrains Mono"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "code": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #080B12; color: #e0e2ec; }
+        .panel { background-color: #111722; border: 1px solid #202938; }
+        .input-inset { background-color: #080B12; border: 1px solid #202938; }
+        .input-inset:focus { border-color: #2F81F7; outline: none; }
+        
+        .terminal-scroll::-webkit-scrollbar { width: 6px; }
+        .terminal-scroll::-webkit-scrollbar-track { background: #080B12; }
+        .terminal-scroll::-webkit-scrollbar-thumb { background: #202938; border-radius: 4px; }
+        
+        .scan-line { animation: scan 2s linear infinite; }
+        @keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+    </style>
+</head>
+<body class="font-body-md bg-background text-on-background flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col z-50 bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant dark:border-outline-variant w-64">
+<div class="p-6 border-b border-outline-variant dark:border-outline-variant flex items-center gap-4">
+<div class="w-10 h-10 bg-primary-container rounded flex items-center justify-center text-on-primary-container font-headline-sm font-bold">
+                 AS
+             </div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-on-surface dark:text-on-surface tracking-tight">Aegis Scanner</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">v2.4.0-stable</p>
+</div>
+</div>
+<div class="p-4">
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded font-label-md hover:bg-primary-fixed transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                 INITIATE SCAN
+             </button>
+</div>
+<ul class="flex-1 overflow-y-auto py-2">
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 border-l-2 border-primary bg-secondary-container text-on-secondary-container" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="biotech" data-weight="fill" style="font-variation-settings: 'FILL' 1;">biotech</span>
+<span class="text-label-md font-label-md font-bold">New Scan</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="history">history</span>
+<span class="text-label-md font-label-md">Scan History</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+<span class="text-label-md font-label-md">Reports</span>
+</a>
+</li>
+</ul>
+<div class="border-t border-outline-variant dark:border-outline-variant p-2">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="memory">memory</span>
+<span class="text-label-sm font-label-sm">Engine Health</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="database">database</span>
+<span class="text-label-sm font-label-sm">DB Status</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 flex flex-col h-full bg-[#080B12]">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-12 px-panel-padding bg-surface-dim dark:bg-surface-dim border-b border-outline-variant dark:border-outline-variant z-40 shrink-0">
+<div class="flex items-center gap-4">
+<h2 class="text-headline-sm font-headline-sm text-on-surface">New Scan Configuration</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">search</span>
+<input class="input-inset pl-9 pr-3 py-1 text-label-sm font-label-sm rounded w-48 text-on-surface placeholder:text-on-surface-variant" placeholder="Quick Search..." type="text">
+</div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]" data-icon="terminal">terminal</span>
+</button>
+<button class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded text-label-sm font-label-sm border border-outline-variant hover:bg-surface-container-high transition-colors">AUTHORIZE</button>
+</div>
+</header>
+<!-- Content Workspace -->
+<div class="flex-1 overflow-hidden flex flex-col p-6 gap-gutter">
+<div class="flex-1 flex gap-gutter min-h-0">
+<!-- Scan Configuration Panel -->
+<section class="panel rounded flex-1 flex flex-col min-w-[400px]">
+<div class="p-panel-padding border-b border-outline-variant flex items-center gap-2 bg-[#0D111A]">
+<span class="material-symbols-outlined text-primary text-[18px]">tune</span>
+<h3 class="text-headline-sm font-headline-sm">Scan Configuration</h3>
+</div>
+<div class="p-panel-padding flex-1 overflow-y-auto space-y-6">
+<div class="space-y-2">
+<label class="text-label-sm font-label-sm uppercase text-on-surface-variant tracking-wider">Target Specification</label>
+<textarea class="w-full input-inset p-3 text-code font-code rounded placeholder:text-surface-variant text-primary" placeholder="Enter IP addresses, hostnames, or CIDR ranges
+e.g. 192.168.1.0/24, target.domain.com" rows="3"></textarea>
+<p class="text-label-sm font-label-sm text-outline">Supports Nmap standard target specifications.</p>
+</div>
+<div class="space-y-4">
+<label class="text-label-sm font-label-sm uppercase text-on-surface-variant tracking-wider block">Scan Profile</label>
+<div class="grid grid-cols-2 gap-3">
+<label class="border border-primary bg-secondary-container p-3 rounded cursor-pointer relative">
+<input checked="" class="hidden" name="profile" type="radio">
+<div class="flex justify-between items-start mb-1">
+<span class="text-body-sm font-body-sm font-bold text-primary">Comprehensive</span>
+<span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-secondary-container">Full TCP/UDP, OS detection, version scanning.</p>
+</label>
+<label class="border border-outline-variant bg-[#080B12] hover:bg-surface-container-low p-3 rounded cursor-pointer">
+<input class="hidden" name="profile" type="radio">
+<div class="flex justify-between items-start mb-1">
+<span class="text-body-sm font-body-sm font-bold text-on-surface">Quick Discovery</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Top 100 ports, fast execution, no deep probing.</p>
+</label>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-label-sm font-label-sm uppercase text-on-surface-variant tracking-wider">Port Range</label>
+<input class="w-full input-inset p-2 text-code font-code rounded" type="text" value="1-65535">
+</div>
+<div class="space-y-2">
+<label class="text-label-sm font-label-sm uppercase text-on-surface-variant tracking-wider">Timing Template</label>
+<select class="w-full input-inset p-2 text-code font-code rounded appearance-none">
+<option>T4 (Aggressive)</option>
+<option>T3 (Normal)</option>
+<option>T5 (Insane)</option>
+</select>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant bg-[#0D111A] flex justify-end gap-3">
+<button class="px-4 py-2 rounded text-label-md font-label-md border border-outline-variant hover:bg-surface-container-high transition-colors">Save Template</button>
+<button class="px-6 py-2 rounded text-label-md font-label-md bg-primary text-on-primary hover:bg-primary-fixed transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                            EXECUTE SCAN
+                        </button>
+</div>
+</section>
+<!-- Target Intelligence Panel -->
+<aside class="panel rounded w-80 flex flex-col shrink-0">
+<div class="p-panel-padding border-b border-outline-variant flex items-center justify-between bg-[#0D111A]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container text-[18px]">radar</span>
+<h3 class="text-headline-sm font-headline-sm">Target Intel</h3>
+</div>
+<span class="flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-tertiary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary-container"></span>
+</span>
+</div>
+<div class="flex-1 p-panel-padding space-y-6 overflow-y-auto">
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<span class="text-label-sm font-label-sm uppercase text-on-surface-variant">Live Resolution</span>
+<span class="text-label-sm font-label-sm text-primary">Active</span>
+</div>
+<div class="bg-[#080B12] border border-outline-variant rounded p-3 text-code font-code text-on-surface space-y-1">
+<div class="flex justify-between border-b border-outline-variant pb-1">
+<span class="text-on-surface-variant">target.domain.com</span>
+<span>192.168.1.150</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant pb-1">
+<span class="text-on-surface-variant">GW</span>
+<span>192.168.1.1</span>
+</div>
+<div class="flex justify-between pt-1">
+<span class="text-on-surface-variant">Latency</span>
+<span class="text-tertiary-container">42ms</span>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<span class="text-label-sm font-label-sm uppercase text-on-surface-variant">Threat Intel Feed</span>
+<div class="bg-[#080B12] border border-outline-variant rounded p-3 text-label-sm font-label-sm space-y-2">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[14px] mt-0.5">warning</span>
+<span class="text-on-surface">Subnet flagged for anomalous outbound traffic (24h)</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[14px] mt-0.5">info</span>
+<span class="text-on-surface">Known CI/CD infrastructure segment</span>
+</div>
+</div>
+</div>
+<!-- Decorative Radar/Map area -->
+<div class="h-32 border border-outline-variant rounded relative overflow-hidden bg-[#080B12]" data-alt="A dark, technical digital map visualization showing network nodes and connection lines glowing in subtle blues. Highly technical, grid overlay, cybersecurity command center aesthetic. Low brightness, high contrast, clean vector style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBllqDuEPT8dWCf4qSDONzJljnoSSxtcUU7tjZ-Q0ffg_athZcz-R_YpWnfE-4lyYmsGKwHY3nZJPmOM6TGquIXxqLNjxLDtwBK0izTEPPWSr8V-Pklz52CNGrN5T3ODN3EagxUTBIpkmbeLzKlKiTHs0In6nhPib8BT3p_6EQOLDr7-3FbIw98U06fge4iTtJjq_GPFIq2E5qbxXDZJFcgaKH40_Vm9HQETrouj70lyzGRcw7XOYtOWg')">
+<div class="absolute inset-0 bg-primary/5 scan-line border-b border-primary/30"></div>
+</div>
+</div>
+</aside>
+</div>
+<!-- Aegis Terminal Session -->
+<section class="panel rounded h-48 flex flex-col shrink-0 border-t-2 border-t-primary-container">
+<div class="px-4 py-2 border-b border-outline-variant bg-[#0D111A] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">terminal</span>
+<span class="text-label-sm font-label-sm uppercase text-on-surface-variant tracking-wider">Aegis Terminal Session</span>
+</div>
+<div class="flex gap-2">
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[14px]">content_copy</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[14px]">clear_all</span></button>
+</div>
+</div>
+<div class="flex-1 bg-[#080B12] p-4 font-code text-code overflow-y-auto terminal-scroll space-y-1">
+<div class="flex gap-3">
+<span class="text-outline-variant">[14:02:41]</span>
+<span class="text-primary">[SYS]</span>
+<span class="text-on-surface">Initializing Aegis Scanner Core v2.4.0...</span>
+</div>
+<div class="flex gap-3">
+<span class="text-outline-variant">[14:02:41]</span>
+<span class="text-primary">[SYS]</span>
+<span class="text-on-surface">Loading plugins and signature databases... [OK]</span>
+</div>
+<div class="flex gap-3">
+<span class="text-outline-variant">[14:02:42]</span>
+<span class="text-tertiary-container">[NET]</span>
+<span class="text-on-surface">Resolving target specification...</span>
+</div>
+<div class="flex gap-3">
+<span class="text-outline-variant">[14:02:42]</span>
+<span class="text-on-surface-variant">---</span>
+<span class="text-on-surface-variant italic">Waiting for execution command...</span>
+</div>
+<div class="flex gap-3 mt-2 animate-pulse">
+<span class="text-primary font-bold">root@aegis:~# </span>
+<span class="w-2 h-4 bg-primary inline-block"></span>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

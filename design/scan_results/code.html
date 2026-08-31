@@ -1,0 +1,365 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aegis Scanner - Scan Report</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#10131a",
+                        "on-secondary-container": "#a9b6c8",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#321300",
+                        "on-surface": "#e0e2ec",
+                        "outline": "#8b909f",
+                        "primary-fixed-dim": "#acc7ff",
+                        "on-tertiary-fixed-variant": "#753400",
+                        "surface-tint": "#acc7ff",
+                        "on-secondary": "#25313f",
+                        "surface-container-high": "#272a31",
+                        "secondary-fixed": "#d6e4f6",
+                        "error": "#ffb4ab",
+                        "background": "#10131a",
+                        "primary-fixed": "#d7e2ff",
+                        "on-primary-fixed": "#001a40",
+                        "primary": "#acc7ff",
+                        "primary-container": "#498fff",
+                        "on-primary": "#002f68",
+                        "inverse-primary": "#005bbf",
+                        "tertiary-fixed": "#ffdbc8",
+                        "on-tertiary-container": "#481e00",
+                        "on-primary-fixed-variant": "#004492",
+                        "surface-bright": "#363941",
+                        "secondary": "#bac8da",
+                        "on-background": "#e0e2ec",
+                        "tertiary-container": "#e47014",
+                        "on-surface-variant": "#c1c6d6",
+                        "surface-container": "#1d2027",
+                        "on-error": "#690005",
+                        "outline-variant": "#414754",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0b0e15",
+                        "secondary-container": "#3b4857",
+                        "on-secondary-fixed-variant": "#3b4857",
+                        "surface-container-highest": "#32353c",
+                        "tertiary-fixed-dim": "#ffb68b",
+                        "on-tertiary": "#522300",
+                        "surface-variant": "#32353c",
+                        "tertiary": "#ffb68b",
+                        "surface": "#10131a",
+                        "surface-container-low": "#181c23",
+                        "inverse-surface": "#e0e2ec",
+                        "on-secondary-fixed": "#101d2a",
+                        "on-primary-container": "#00285b",
+                        "inverse-on-surface": "#2d3038",
+                        "secondary-fixed-dim": "#bac8da"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "12px",
+                        "table-cell-padding": "8px 12px",
+                        "unit": "4px",
+                        "margin-page": "24px",
+                        "panel-padding": "16px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["JetBrains Mono"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "code": ["JetBrains Mono"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "code": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #080B12; color: #e0e2ec; }
+        .panel { border: 1px solid #202938; background-color: #111722; }
+        .table-row-hover:hover { background-color: #1d2027; cursor: pointer; }
+        .active-row { background-color: #1d2027; border-left: 2px solid #acc7ff; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #080B12; }
+        ::-webkit-scrollbar-thumb { background: #32353c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #414754; }
+    </style>
+</head>
+<body class="font-body-md bg-background text-on-surface h-screen overflow-hidden flex font-sans">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col z-50 docked h-screen w-64 left-0 top-0 bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant dark:border-outline-variant text-primary dark:text-primary">
+<div class="p-panel-padding border-b border-outline-variant dark:border-outline-variant flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[20px]" data-icon="security" data-weight="fill" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-on-surface dark:text-on-surface tracking-tight">Aegis Scanner</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">v2.4.0-stable</p>
+</div>
+</div>
+<div class="flex-1 py-4 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high transition-colors hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-150 ease-in-out active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high transition-colors hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-150 ease-in-out active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="biotech">biotech</span>
+<span class="text-label-md font-label-md">New Scan</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high transition-colors hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-all duration-150 ease-in-out active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="history">history</span>
+<span class="text-label-md font-label-md">Scan History</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 border-l-2 border-primary bg-secondary-container text-on-secondary-container transition-all duration-150 ease-in-out active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+<span class="text-label-md font-label-md">Reports</span>
+</a>
+</li>
+</ul>
+</div>
+<div class="p-panel-padding border-t border-outline-variant dark:border-outline-variant">
+<button class="w-full bg-primary-container hover:bg-primary-fixed text-on-primary-container font-label-md text-label-md py-2 px-4 rounded border border-[#202938] transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="play_arrow">play_arrow</span>
+                INITIATE SCAN
+            </button>
+<div class="mt-4 flex flex-col gap-2">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]" data-icon="memory">memory</span>
+<span class="text-label-sm font-label-sm">Engine Health: OK</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]" data-icon="database">database</span>
+<span class="text-label-sm font-label-sm">DB Status: Syncing</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 ml-64 flex flex-col h-screen bg-[#080B12]">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-12 w-full px-panel-padding bg-surface-dim dark:bg-surface-dim border-b border-outline-variant dark:border-outline-variant text-primary dark:text-primary z-40">
+<div class="flex items-center gap-4">
+<div class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="description">description</span>
+<span>Reports</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary">TRG-992A-44B</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-[#080B12] border border-[#202938] rounded px-2 py-1 focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none text-code font-code text-on-surface focus:ring-0 p-0 text-[13px] w-48 placeholder-on-surface-variant/50" placeholder="Search reports..." type="text">
+</div>
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]" data-icon="terminal">terminal</span>
+</button>
+</div>
+<div class="h-6 w-px bg-outline-variant mx-2"></div>
+<button class="bg-primary text-on-primary text-label-md font-label-md px-3 py-1 rounded hover:bg-primary-fixed transition-colors">
+                    AUTHORIZE
+                </button>
+<img alt="User Analyst Profile" class="w-8 h-8 rounded border border-outline-variant object-cover" data-alt="A professional headshot of a cybersecurity analyst in a dimly lit server room. High contrast, technical lighting with blue and red hues. Cinematic portrait style, highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfbb2OSAERcbJsYbHZZ8wrHw5y720aiZ3gtlpRHyJsZy8tuAI-doOkaSx9HbOnwQFOJWFfwTrhxCVH1jEVydqlAm8D7FELoLMp4GHjW43VkVVW5I3W-MVwLPigQKqPPaHL1gAZLW5Lio5OBADvk3dp6hlLfgsxLBz1z_P8-3Cu_CLxCgon36FOHcEpg6QO7FQH3T32Kpa95UKKyO-WevC-TX0w3-aAWSXM7-RC_lyzyG9_g0Hjo40qLQ">
+</div>
+</header>
+<!-- Scrollable Content -->
+<main class="flex-1 overflow-y-auto p-margin-page">
+<!-- Report Header -->
+<div class="flex justify-between items-end mb-gutter">
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-bold flex items-center gap-3">
+                        Target: TRG-992A-44B
+                        <span class="bg-[#111722] border border-[#202938] text-code font-code text-on-surface px-2 py-0.5 rounded text-[11px] flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            COMPLETED
+                        </span>
+</h2>
+<p class="text-code font-code text-on-surface-variant mt-1">IP: 192.168.1.105 | Scanned: 2023-10-27T14:32:00Z</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="panel hover:bg-surface-container-high text-on-surface text-label-md font-label-md px-3 py-1.5 rounded transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="download">download</span>
+                        Export PDF
+                    </button>
+</div>
+</div>
+<!-- Metrics Overview -->
+<div class="grid grid-cols-4 gap-gutter mb-gutter">
+<div class="panel p-3 rounded flex flex-col justify-between">
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Overall Risk</div>
+<div class="flex items-baseline gap-2">
+<span class="text-[24px] font-headline-sm font-bold text-error">CRITICAL</span>
+<span class="material-symbols-outlined text-error text-[20px]" data-icon="warning" data-weight="fill" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+</div>
+<div class="panel p-3 rounded flex flex-col justify-between">
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Total Ports Open</div>
+<div class="text-[24px] font-code font-bold text-on-surface">12</div>
+</div>
+<div class="panel p-3 rounded flex flex-col justify-between">
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Vulnerabilities</div>
+<div class="text-[24px] font-code font-bold text-tertiary-container">3</div>
+</div>
+<div class="panel p-3 rounded flex flex-col justify-between">
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Scan Duration</div>
+<div class="text-[24px] font-code font-bold text-on-surface">00:04:12</div>
+</div>
+</div>
+<!-- Main Split Layout -->
+<div class="flex gap-gutter h-[calc(100vh-280px)] min-h-[400px]">
+<!-- Left Panel: Data Table -->
+<div class="panel rounded flex-1 flex flex-col overflow-hidden">
+<div class="bg-[#0D111A] p-2 border-b border-[#202938] flex justify-between items-center">
+<h3 class="text-label-sm font-label-sm text-on-surface uppercase tracking-wider pl-2">Detected Ports</h3>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-[#0D111A] sticky top-0 z-10 border-b border-[#202938]">
+<tr>
+<th class="p-table-cell-padding text-label-sm font-label-sm text-on-surface-variant uppercase font-medium">Port</th>
+<th class="p-table-cell-padding text-label-sm font-label-sm text-on-surface-variant uppercase font-medium">Protocol</th>
+<th class="p-table-cell-padding text-label-sm font-label-sm text-on-surface-variant uppercase font-medium">State</th>
+<th class="p-table-cell-padding text-label-sm font-label-sm text-on-surface-variant uppercase font-medium">Service</th>
+<th class="p-table-cell-padding text-label-sm font-label-sm text-on-surface-variant uppercase font-medium">Risk</th>
+</tr>
+</thead>
+<tbody class="font-code text-code">
+<tr class="table-row-hover border-b border-[#202938]">
+<td class="p-table-cell-padding text-on-surface">22</td>
+<td class="p-table-cell-padding text-on-surface-variant">TCP</td>
+<td class="p-table-cell-padding"><span class="text-emerald-400">open</span></td>
+<td class="p-table-cell-padding text-on-surface-variant">ssh</td>
+<td class="p-table-cell-padding">
+<span class="bg-surface-container px-2 py-0.5 rounded text-[11px] border border-outline-variant text-on-surface-variant">LOW</span>
+</td>
+</tr>
+<tr class="table-row-hover border-b border-[#202938]">
+<td class="p-table-cell-padding text-on-surface">80</td>
+<td class="p-table-cell-padding text-on-surface-variant">TCP</td>
+<td class="p-table-cell-padding"><span class="text-emerald-400">open</span></td>
+<td class="p-table-cell-padding text-on-surface-variant">http</td>
+<td class="p-table-cell-padding">
+<span class="bg-surface-container px-2 py-0.5 rounded text-[11px] border border-outline-variant text-on-surface-variant">LOW</span>
+</td>
+</tr>
+<tr class="active-row border-b border-[#202938]">
+<td class="p-table-cell-padding text-on-surface font-bold">445</td>
+<td class="p-table-cell-padding text-on-surface-variant">TCP</td>
+<td class="p-table-cell-padding"><span class="text-emerald-400">open</span></td>
+<td class="p-table-cell-padding text-on-surface-variant">microsoft-ds</td>
+<td class="p-table-cell-padding">
+<span class="bg-error/10 px-2 py-0.5 rounded text-[11px] border border-error/30 text-error">CRITICAL</span>
+</td>
+</tr>
+<tr class="table-row-hover border-b border-[#202938]">
+<td class="p-table-cell-padding text-on-surface">3306</td>
+<td class="p-table-cell-padding text-on-surface-variant">TCP</td>
+<td class="p-table-cell-padding"><span class="text-emerald-400">open</span></td>
+<td class="p-table-cell-padding text-on-surface-variant">mysql</td>
+<td class="p-table-cell-padding">
+<span class="bg-tertiary-container/10 px-2 py-0.5 rounded text-[11px] border border-tertiary-container/30 text-tertiary-container">MEDIUM</span>
+</td>
+</tr>
+<tr class="table-row-hover border-b border-[#202938]">
+<td class="p-table-cell-padding text-on-surface">8080</td>
+<td class="p-table-cell-padding text-on-surface-variant">TCP</td>
+<td class="p-table-cell-padding"><span class="text-emerald-400">open</span></td>
+<td class="p-table-cell-padding text-on-surface-variant">http-proxy</td>
+<td class="p-table-cell-padding">
+<span class="bg-tertiary-container/10 px-2 py-0.5 rounded text-[11px] border border-tertiary-container/30 text-tertiary-container">MEDIUM</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Panel: Inspection Details -->
+<div class="panel rounded w-1/3 flex flex-col overflow-hidden">
+<div class="bg-[#0D111A] p-3 border-b border-[#202938] flex justify-between items-center">
+<h3 class="text-label-sm font-label-sm text-on-surface uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="policy">policy</span>
+                            Port Inspection
+                        </h3>
+</div>
+<div class="p-4 flex-1 overflow-y-auto">
+<div class="flex items-center gap-3 mb-4">
+<div class="bg-error/10 border border-error/30 w-12 h-12 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-[24px]" data-icon="dangerous">dangerous</span>
+</div>
+<div>
+<div class="text-headline-sm font-headline-sm text-on-surface font-bold">Port 445 (TCP)</div>
+<div class="text-code font-code text-error mt-1 text-[13px]">Service: microsoft-ds | Risk: CRITICAL</div>
+</div>
+</div>
+<div class="mb-6">
+<h4 class="text-label-sm font-label-sm text-on-surface-variant uppercase mb-2 border-b border-[#202938] pb-1">Finding Details</h4>
+<p class="text-body-sm font-body-sm text-on-surface leading-relaxed">
+                                SMBv1 protocol detected as enabled on port 445. This protocol is highly vulnerable to remote code execution attacks, notably the EternalBlue exploit used by WannaCry and NotPetya ransomware.
+                            </p>
+<div class="bg-[#080B12] border border-[#202938] p-3 mt-3 rounded">
+<div class="text-code font-code text-on-surface-variant text-[11px] mb-1">CVE-2017-0144</div>
+<div class="text-body-sm font-body-sm text-on-surface">Remote Code Execution Vulnerability in Microsoft SMBv1 Server</div>
+</div>
+</div>
+<div>
+<h4 class="text-label-sm font-label-sm text-on-surface-variant uppercase mb-2 border-b border-[#202938] pb-1">Remediation Recommendation</h4>
+<ul class="text-body-sm font-body-sm text-on-surface space-y-2 pl-4 list-disc marker:text-primary">
+<li>Immediately disable SMBv1 across the network.</li>
+<li>Apply MS17-010 security update if legacy systems mandate SMBv1 (not recommended).</li>
+<li>Restrict access to port 445 via network firewalls to internal trusted IP ranges only.</li>
+<li>Upgrade to SMBv2 or SMBv3.</li>
+</ul>
+<div class="mt-4">
+<button class="w-full bg-[#0D111A] hover:bg-surface-container-high text-primary border border-[#202938] text-label-md font-label-md py-2 px-4 rounded transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="construction">construction</span>
+                                    Generate Patch Script
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

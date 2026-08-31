@@ -1,0 +1,45 @@
+# Tooling configuration for Aegis Scanner.
+#
+# The application is run directly with `python app.py` and is not packaged as a
+# distribution, so this file carries linter configuration only — there is no
+# [project] table and nothing here is installed.
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [
+    ".git",
+    ".github",
+    "__pycache__",
+    "venv",
+    ".venv",
+    "node_modules",
+    "instance",
+    "scans",
+    "design",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort — import ordering
+    "B",   # flake8-bugbear — likely bugs
+    "S",   # flake8-bandit — security lint
+    "UP",  # pyupgrade — modern syntax
+    "C4",  # flake8-comprehensions
+]
+ignore = [
+    # Broad `except Exception` is deliberate throughout the API layer: every
+    # route must convert an unexpected failure into a sanitised JSON response
+    # rather than leaking a stack trace to the client.
+    "BLE001",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests legitimately use assert, hardcoded loopback addresses, and long literals.
+"test_app.py" = ["S101", "S104", "E501"]
+# The Nmap wrapper intentionally handles subprocess-adjacent behaviour and
+# resolves user-supplied hostnames after validating them against an allowlist.
+"scanner.py" = ["S104"]

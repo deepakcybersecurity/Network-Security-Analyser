@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/deepakcybersecurity/Network-Security-Analyser/security/advisories/new
+    about: Do not open a public issue for a vulnerability. File a private advisory instead.
+
+  - name: 💬 Ask a question or discuss an idea
+    url: https://github.com/deepakcybersecurity/Network-Security-Analyser/discussions
+    about: For usage questions and open-ended ideas, start a discussion.

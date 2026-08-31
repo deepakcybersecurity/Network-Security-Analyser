@@ -1,0 +1,19 @@
+{
+  "name": "aegis-scanner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tailwind CSS v4 build toolchain for the Aegis Scanner Flask dashboard.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepakcybersecurity/Network-Security-Analyser.git"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./static/css/src.css -o ./static/css/style.css --minify",
+    "dev:css": "tailwindcss -i ./static/css/src.css -o ./static/css/style.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}
