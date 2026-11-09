@@ -13,7 +13,7 @@
     "dev:css": "tailwindcss -i ./static/css/src.css -o ./static/css/style.css --watch"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.3.3",
+    "@tailwindcss/cli": "^4.3.4",
     "tailwindcss": "^4.3.3"
   }
 }
