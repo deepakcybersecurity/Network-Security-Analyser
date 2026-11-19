@@ -40,10 +40,12 @@ Each control is documented in [Security architecture](#security-architecture).
   rejection, and DNS resolution, all applied before Nmap is called.
 - **Fast TCP connect scan** (`-sT -F`) over the top 100 ports. The AI assistant can
   recommend broader coverage or Nmap service/version detection when useful.
-- **AI scan assistant** — describe the authorized audit goal; OpenAI recommends one of four
+- **Dual AI Provider Support (Google Gemini & OpenAI)** — supports Google Gemini (free with
+  Google AI Studio API key) and OpenAI models with automatic offline heuristic fallback.
+- **AI scan assistant** — describe the authorized audit goal; the AI recommends one of four
   reviewed TCP scan profiles. The separate target field is not sent, and the recommendation
   must be selected by the operator before scanning. Avoid putting targets or secrets in the
-  goal text because that text is sent to OpenAI.
+  goal text because that text is sent to the AI provider.
 - **Deterministic Security Score (0 to 100)** — transparent, rule-based exposure heuristic calculated from base 100 points with deterministic deductions per unique exposed TCP listener: `HIGH (-25)`, `MEDIUM (-10)`, `LOW (-3)`. Bounded between 0 and 100, deduplicated by `protocol:port`, and categorized into 5 standardized score bands:
   - `GOOD (90–100)`: Minimal exposure or low-risk listeners.
   - `FAIR (75–89)`: Moderate exposure or single hardened service.
@@ -129,27 +131,37 @@ A scan's overall rating is the highest rating among its findings.
 
 ```text
 .
-├── app.py                 # Flask routes, security headers, rate limiting
-├── scanner.py             # Target validation and the Nmap invocation
-├── ai_assistant.py        # OpenAI profile recommendation and response validation
-├── risk_analyzer.py       # Deterministic risk rules and Security Score calculator
+├── app.py                  # Flask routes, security headers, rate limiting
+├── scanner.py              # Target validation and the Nmap invocation
+├── ai_assistant.py         # AI profile recommendation and response validation
+├── risk_analyzer.py        # Deterministic risk rules and Security Score calculator
 ├── service_fingerprints.py # Educational service fingerprint knowledge base
-├── export_service.py      # Unified multi-format report exporter (PDF, CSV, JSON, TXT)
-├── comparator.py          # Scan comparison (exposure diff) engine
-├── database.py            # SQLite schema and parameterised queries
-├── test_app.py            # 43 automated regression tests (no live scan, Nmap mocked)
-├── requirements.txt       # Python dependencies
-├── package.json           # Tailwind CSS v4 build toolchain
+├── export_service.py       # Unified multi-format report exporter (PDF, CSV, JSON, TXT)
+├── comparator.py           # Scan comparison (exposure diff) engine
+├── command_parser.py       # Command execution output parser (XML, text, banners)
+├── command_registry.py     # Strictly validated diagnostic command catalog & allowlist
+├── command_runner.py       # Sandboxed background execution engine (shell=False)
+├── web_prober.py           # Safe bounded HTTP/HTTPS banner & header prober
+├── database.py             # SQLite schema and parameterised queries
+├── test_app.py             # 53 automated regression tests (no live scan, Nmap mocked)
+├── wsgi.py                 # Production WSGI server entry point
+├── requirements.txt        # Python dependencies
+├── package.json            # Tailwind CSS v4 build toolchain
+├── ai/                     # AI security analysis engine
+│   ├── analyzer.py         # Post-scan exposure evaluation & report generator
+│   ├── copilot.py          # Conversational network diagnostic copilot
+│   ├── prompts.py          # System prompts and structured JSON schemas
+│   └── provider.py         # Multi-provider client (Google Gemini & OpenAI)
 ├── templates/
-│   └── index.html         # Single-page dashboard
+│   └── index.html          # Single-page dashboard & Copilot interface
 ├── static/
-│   ├── css/src.css        # Tailwind source  ← edit this
-│   ├── css/style.css      # Tailwind build output (generated, committed)
-│   ├── js/script.js       # Dashboard logic
-│   ├── fonts/             # Self-hosted fonts (no CDN, for strict CSP)
+│   ├── css/src.css         # Tailwind source  ← edit this
+│   ├── css/style.css       # Tailwind build output (generated, committed)
+│   ├── js/script.js        # Dashboard, visualizations & Copilot client logic
+│   ├── fonts/              # Self-hosted fonts (no CDN, for strict CSP)
 │   └── logo.png
-├── design/                # UI design references and mockups
-└── instance/              # Runtime SQLite database (gitignored)
+├── design/                 # UI design references and mockups
+└── instance/               # Runtime SQLite database (gitignored)
 ```
 
 ## Getting started
@@ -185,12 +197,41 @@ pip install -r requirements.txt
 ```
 
 The application reads configuration from process environment variables. Copying
-`.env.example` does not load it automatically; set the variables in the same shell or
-service environment that starts Flask. For example, in PowerShell:
+`.env.example` to `.env` or setting environment variables configures optional AI features.
+Scans and deterministic scoring run completely locally without any API key.
 
+#### Setting API keys (Optional for AI Analyst & Copilot)
+
+**Option 1: Google Gemini (Free)**
+Get a key from [Google AI Studio](https://aistudio.google.com/app/apikey):
+
+PowerShell:
 ```powershell
-$env:OPENAI_API_KEY = "your-api-key"
-$env:OPENAI_MODEL = "gpt-6-astra"
+$env:GEMINI_API_KEY = "your-gemini-api-key"
+$env:GEMINI_MODEL = "gemini-1.5-flash"
+python app.py
+```
+
+Bash:
+```bash
+export GEMINI_API_KEY="your-gemini-api-key"
+export GEMINI_MODEL="gemini-1.5-flash"
+python app.py
+```
+
+**Option 2: OpenAI**
+
+PowerShell:
+```powershell
+$env:OPENAI_API_KEY = "your-openai-api-key"
+$env:OPENAI_MODEL = "gpt-4o-mini"
+python app.py
+```
+
+Bash:
+```bash
+export OPENAI_API_KEY="your-openai-api-key"
+export OPENAI_MODEL="gpt-4o-mini"
 python app.py
 ```
 
@@ -203,17 +244,20 @@ python app.py
 The dashboard is served at <http://127.0.0.1:5000/>. The database is created on first run
 at `instance/aegis_scanner.db`.
 
+For production deployments, serve with a WSGI server using `wsgi.py` (e.g. `gunicorn -w 4 -b 127.0.0.1:5000 wsgi:app`).
+
 ### Configuration
 
-These variables are read from the environment. The API key is required only for AI
-recommendations; scans can still use the default quick profile without it.
+These variables are read from the environment. API keys are optional; scans and deterministic risk scoring operate fully offline without them.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `SECRET_KEY` | random `os.urandom(32)` per start | Flask session signing key. Set explicitly for any real deployment. |
 | `FLASK_DEBUG` | `false` | Set to `true` only for local debugging — it exposes the Werkzeug interactive console. |
-| `OPENAI_API_KEY` | unset | Enables AI scan recommendations. Keep it server-side; never put it in browser code. |
-| `OPENAI_MODEL` | `gpt-6-astra` | OpenAI model used for recommendations. |
+| `GEMINI_API_KEY` | unset | Enables Google Gemini for AI scan recommendations, Security Analyst, and Copilot (Free tier available). |
+| `GEMINI_MODEL` | `gemini-1.5-flash` | Google Gemini model name. |
+| `OPENAI_API_KEY` | unset | Enables OpenAI for AI recommendations, Analyst, and Copilot (alternative provider). |
+| `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model name used for recommendations and analysis. |
 
 ### Modifying the styling
 
@@ -247,6 +291,13 @@ Use `npm run dev:css` to rebuild on change while developing.
 | `GET` | `/api/ai/analyze/<scan_id>` | Retrieve cached post-scan AI Security Analyst report |
 | `POST` | `/api/ai/analyze/<scan_id>` | Run post-scan AI Security Analyst evaluation with offline heuristic fallback |
 | `GET` | `/api/scan/<scan_id>/export` | Multi-format export dispatcher: `?format=txt` (default), `?format=pdf` (ReportLab executive PDF), `?format=csv` (injection-safe CSV), `?format=json` (schema 1.0) |
+| `GET` | `/api/copilot/operations` | List all available validated diagnostic operations in the command registry |
+| `GET` | `/api/copilot/conversations` | List saved conversational Copilot sessions |
+| `GET` | `/api/copilot/conversation/<id>` | Retrieve chat history and proposed commands for a specific Copilot session |
+| `POST` | `/api/copilot/chat` | Send conversational prompt to AI Copilot; returns diagnostic guidance and proposed command cards |
+| `POST` | `/api/copilot/execute` | Safely execute confirmed command (`shell=False`, argument allowlist, output stream) |
+| `GET` | `/api/copilot/execution/<id>` | Poll diagnostic execution status, live logs, parsed findings, and AI insights |
+| `POST` | `/api/copilot/execution/<id>/cancel` | Terminate a running background diagnostic process safely |
 
 <details>
 <summary><strong>Example</strong> — <code>POST /api/scan</code></summary>
@@ -287,11 +338,11 @@ touches the network and needs no Nmap binary:
 python -m unittest -v test_app.py
 ```
 
-Forty-three automated tests cover request validation, malformed JSON handling, persistence across
+Fifty-three automated tests cover request validation, malformed JSON handling, persistence across
 history/details/stats/export, security headers, secret-key configuration, rate-limit
-enforcement, history deletion, AI analysis caching and offline fallback, visual risk dashboard statistics,
-exposure diff comparison across 12 edge cases, deterministic remediation playbooks, multi-format exports
-(PDF, CSV, JSON, TXT), CSV formula injection defenses, Service Fingerprint knowledge cards, and the
+enforcement, history deletion, AI analysis caching and offline fallback, AI Copilot conversation and command execution,
+visual risk dashboard statistics, exposure diff comparison across 12 edge cases, deterministic remediation playbooks,
+multi-format exports (PDF, CSV, JSON, TXT), CSV formula injection defenses, Service Fingerprint knowledge cards, and the
 deterministic Security Score (0 to 100) scoring heuristic. CI runs them on Python 3.12 and 3.13 across Ubuntu and
 Windows.
 
