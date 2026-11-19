@@ -18,7 +18,7 @@
             <img src="/static/logo.png" alt="Aegis Scanner Logo" class="w-8 h-8 object-contain shrink-0">
             <div>
                 <h1 class="text-headline-sm font-headline-sm font-bold tracking-tight">Aegis Scanner</h1>
-                <p class="font-code text-code text-on-surface-variant text-[11px]">v2.4.0-stable</p>
+                <p class="font-code text-code text-on-surface-variant text-[11px]" >v2.4.0-stable</p>
             </div>
         </div>
 
@@ -43,6 +43,10 @@
                 <span class="material-symbols-outlined text-[20px]">history</span>
                 <span class="font-label-md text-label-md">Scan History</span>
             </button>
+            <button id="nav-link-compare" class="w-full flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+                <span class="material-symbols-outlined text-[20px]">compare_arrows</span>
+                <span class="font-label-md text-label-md">Scan Compare</span>
+            </button>
             <button id="nav-link-reports" class="w-full flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-highest transition-colors">
                 <span class="material-symbols-outlined text-[20px]">description</span>
                 <span class="font-label-md text-label-md">Reports</span>
@@ -53,8 +57,35 @@
             </button>
         </nav>
 
+        <!-- AI Copilot Pinned at the Bottom of the Sidebar -->
+        <div id="sidebar-copilot-container" class="mt-auto border-t border-outline-variant p-3 bg-surface-container-low shrink-0 flex flex-col gap-2">
+            <!-- Pinned Copilot Navigation Button -->
+            <button id="nav-link-copilot" type="button" class="w-full flex items-center gap-3 px-3 py-2.5 rounded bg-surface-container hover:bg-surface-container-highest border border-primary/30 text-on-surface transition-all cursor-pointer group shadow-sm">
+                <div class="w-7 h-7 rounded bg-primary/10 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-105 transition-transform shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">smart_toy</span>
+                </div>
+                <div class="flex items-center justify-between flex-1 min-w-0">
+                    <div class="flex flex-col text-left min-w-0">
+                        <span class="font-label-md text-xs font-bold text-on-surface truncate">AI Copilot</span>
+                        <span class="text-[10px] text-on-surface-variant font-code truncate">Command Assistant</span>
+                    </div>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30 shrink-0">COPILOT</span>
+                </div>
+            </button>
+
+            <!-- Quick Inquiry Input directly inside sidebar -->
+            <form id="sidebar-copilot-quick-form" class="flex items-center gap-1.5">
+                <div class="relative flex-1 min-w-0">
+                    <input type="text" id="sidebar-copilot-quick-input" placeholder="Ask Copilot a command..." class="w-full bg-surface-container-lowest border border-outline-variant rounded px-2.5 py-1.5 text-xs text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" autocomplete="off">
+                </div>
+                <button type="submit" id="sidebar-copilot-quick-submit" class="p-1.5 rounded bg-primary text-on-primary hover:bg-primary-fixed-dim transition-colors cursor-pointer shrink-0 flex items-center justify-center" title="Send to Copilot">
+                    <span class="material-symbols-outlined text-[15px]">send</span>
+                </button>
+            </form>
+        </div>
+
         <!-- Static System Badges / Metadata -->
-        <div class="mt-auto border-t border-outline-variant py-2 bg-surface-container-lowest">
+        <div class="border-t border-outline-variant py-2 bg-surface-container-lowest shrink-0">
             <div class="flex items-center gap-3 px-4 py-1.5 text-on-surface-variant text-[12px]">
                 <span class="material-symbols-outlined text-[16px] text-green-500">check_circle</span>
                 <span>Engine Active</span>
@@ -223,6 +254,64 @@
                     </div>
                 </div>
 
+                <!-- Visual Risk Analytics Dashboard (3 Charts) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="visual-risk-analytics-grid">
+                    <!-- 1. Risk Severity Distribution (Donut Chart) -->
+                    <div class="bg-surface-container border border-outline-variant rounded p-4 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant">
+                            <div>
+                                <h2 class="font-label-md text-label-md uppercase text-on-surface font-bold">Severity Distribution</h2>
+                                <p class="text-[11px] text-on-surface-variant font-body-sm">Proportion of discovered port findings</p>
+                            </div>
+                            <span class="material-symbols-outlined text-primary text-[18px]">pie_chart</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center flex-1 min-h-[170px]" id="chart-donut-container">
+                            <!-- SVG Donut Chart rendered here -->
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 pt-2 border-t border-outline-variant text-center font-code text-[11px]" id="donut-legend">
+                            <div class="flex flex-col"><span class="text-error font-bold" id="donut-high-stat">0 High</span><span class="text-[9px] text-on-surface-variant" id="donut-high-pct">0%</span></div>
+                            <div class="flex flex-col"><span class="text-tertiary-container font-bold" id="donut-med-stat">0 Med</span><span class="text-[9px] text-on-surface-variant" id="donut-med-pct">0%</span></div>
+                            <div class="flex flex-col"><span class="text-primary font-bold" id="donut-low-stat">0 Low</span><span class="text-[9px] text-on-surface-variant" id="donut-low-pct">0%</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Top Scanned Targets (Horizontal Bar Chart) -->
+                    <div class="bg-surface-container border border-outline-variant rounded p-4 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant">
+                            <div>
+                                <h2 class="font-label-md text-label-md uppercase text-on-surface font-bold">Top Audited Targets</h2>
+                                <p class="text-[11px] text-on-surface-variant font-body-sm">Most frequently assessed hosts</p>
+                            </div>
+                            <span class="material-symbols-outlined text-primary text-[18px]">leaderboard</span>
+                        </div>
+                        <div class="flex flex-col justify-center flex-1 min-h-[170px]" id="chart-targets-container">
+                            <!-- SVG Bar Chart rendered here -->
+                        </div>
+                        <div class="pt-2 border-t border-outline-variant text-[11px] text-on-surface-variant flex justify-between">
+                            <span>Top 5 Target Entities</span>
+                            <span id="chart-unique-targets-count" class="font-code font-bold text-primary">0 Total Hosts</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Scan Activity Timeline (Timeline Chart) -->
+                    <div class="bg-surface-container border border-outline-variant rounded p-4 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant">
+                            <div>
+                                <h2 class="font-label-md text-label-md uppercase text-on-surface font-bold">Scan Activity Timeline</h2>
+                                <p class="text-[11px] text-on-surface-variant font-body-sm">Audit volume over calendar dates</p>
+                            </div>
+                            <span class="material-symbols-outlined text-primary text-[18px]">timeline</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center flex-1 min-h-[170px]" id="chart-timeline-container">
+                            <!-- SVG Timeline Chart rendered here -->
+                        </div>
+                        <div class="pt-2 border-t border-outline-variant text-[11px] text-on-surface-variant flex justify-between">
+                            <span>Historical Velocity</span>
+                            <span id="chart-timeline-scans-count" class="font-code font-bold text-primary">0 Runs Logged</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Recent assessments table -->
                 <div class="bg-surface-container border border-outline-variant rounded overflow-hidden flex flex-col">
                     <div class="px-4 py-3 flex justify-between items-end border-b border-outline-variant bg-surface-container-low">
@@ -333,16 +422,29 @@
                                 <span id="result-target-ip" class="chip-value text-primary font-bold ml-1">127.0.0.1</span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <a id="export-report-link" class="bg-surface-container border border-outline-variant text-primary px-3 py-1.5 rounded text-label-sm font-label-sm font-bold hover:bg-surface-container-high transition-all flex items-center gap-1.5" href="#" download>
-                                <span class="material-symbols-outlined text-[16px]">download</span>
-                                <span>Export Text Report</span>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-xs text-on-surface-variant mr-1 font-label-sm">Export:</span>
+                            <a id="export-report-pdf-link" class="bg-surface-container border border-outline-variant text-error px-2.5 py-1 rounded text-label-sm font-label-sm font-bold hover:bg-surface-container-high transition-all flex items-center gap-1" href="#" download title="Download Executive PDF Report">
+                                <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                                <span>PDF</span>
+                            </a>
+                            <a id="export-report-csv-link" class="bg-surface-container border border-outline-variant text-tertiary-container px-2.5 py-1 rounded text-label-sm font-label-sm font-bold hover:bg-surface-container-high transition-all flex items-center gap-1" href="#" download title="Download CSV Findings Table">
+                                <span class="material-symbols-outlined text-[16px]">table_chart</span>
+                                <span>CSV</span>
+                            </a>
+                            <a id="export-report-json-link" class="bg-surface-container border border-outline-variant text-primary px-2.5 py-1 rounded text-label-sm font-label-sm font-bold hover:bg-surface-container-high transition-all flex items-center gap-1" href="#" download title="Download Structured JSON Schema">
+                                <span class="material-symbols-outlined text-[16px]">data_object</span>
+                                <span>JSON</span>
+                            </a>
+                            <a id="export-report-link" class="bg-surface-container border border-outline-variant text-on-surface px-2.5 py-1 rounded text-label-sm font-label-sm font-bold hover:bg-surface-container-high transition-all flex items-center gap-1" href="#" download title="Download Technical Text Report">
+                                <span class="material-symbols-outlined text-[16px]">description</span>
+                                <span>TXT</span>
                             </a>
                         </div>
                     </div>
 
                     <!-- Summary details strip -->
-                    <div class="grid grid-cols-4 gap-4 p-4 border-b border-outline-variant bg-surface-container-lowest">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 p-4 border-b border-outline-variant bg-surface-container-lowest">
                         <div class="flex flex-col gap-1 border-r border-outline-variant pr-2">
                             <span class="text-label-sm font-label-sm text-on-surface-variant uppercase">Scan Status</span>
                             <span id="result-status" class="text-sm font-bold text-green-500 uppercase">COMPLETED</span>
@@ -355,10 +457,63 @@
                             <span class="text-label-sm font-label-sm text-on-surface-variant uppercase">Overall Risk</span>
                             <span id="result-overall-risk" class="text-sm font-bold font-code text-green-500 uppercase">LOW</span>
                         </div>
+                        <div class="flex flex-col gap-1 border-r border-outline-variant pr-2">
+                            <span class="text-label-sm font-label-sm text-on-surface-variant uppercase">Security Score</span>
+                            <div class="flex items-center gap-1.5">
+                                <span id="result-score-num" class="text-sm font-bold font-code text-on-surface">100/100</span>
+                                <span id="result-score-label" class="px-1.5 py-0.2 rounded text-[10px] font-bold border border-outline-variant bg-surface-container text-primary">GOOD</span>
+                            </div>
+                        </div>
                         <div class="flex flex-col gap-1">
                             <span class="text-label-sm font-label-sm text-on-surface-variant uppercase">Risk Breakdown</span>
                             <span id="result-breakdown-text" class="text-sm text-on-surface">0 High · 0 Med · 0 Low</span>
                         </div>
+                    </div>
+
+                    <!-- Deterministic Security Score Widget Banner -->
+                    <div id="security-score-widget" class="p-4 border-b border-outline-variant bg-surface-container-low flex flex-col gap-3">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary text-[26px]">verified_user</span>
+                                <div>
+                                    <h3 class="text-title-sm font-bold text-on-surface flex items-center gap-2">
+                                        Deterministic Security Score
+                                        <span id="score-band-badge" class="px-2 py-0.5 rounded text-xs font-bold border border-outline-variant bg-surface-container-lowest text-primary">GOOD</span>
+                                    </h3>
+                                    <p class="text-xs text-on-surface-variant mt-0.5">Weighted deterministic heuristic evaluating observed network exposure</p>
+                                </div>
+                            </div>
+                            <div class="flex items-baseline gap-1 font-code">
+                                <span id="score-display-num" class="text-2xl font-bold text-on-surface">100</span>
+                                <span class="text-xs text-on-surface-variant font-medium">/ 100 max</span>
+                            </div>
+                        </div>
+
+                        <!-- Score Progress Bar -->
+                        <div class="w-full h-2.5 bg-surface-container-lowest border border-outline-variant rounded-full overflow-hidden flex">
+                            <div id="score-meter-fill" class="h-full bg-primary transition-all duration-500" style="width: 100%;"></div>
+                        </div>
+
+                        <!-- Deductions Breakdown -->
+                        <div class="flex flex-col gap-2 pt-1">
+                            <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+                                <span class="text-on-surface-variant">
+                                    Base: <strong class="text-on-surface font-code">100 pts</strong> &nbsp;|&nbsp;
+                                    Weights: <span class="text-error font-code font-bold">HIGH (-25)</span> · <span class="text-tertiary-container font-code font-bold">MED (-10)</span> · <span class="text-primary font-code font-bold">LOW (-3)</span>
+                                </span>
+                                <span id="score-total-deductions" class="text-on-surface font-code font-bold">Total Deductions: 0 pts</span>
+                            </div>
+
+                            <div id="score-deductions-list" class="space-y-1.5 text-xs font-code pt-1.5 border-t border-outline-variant/60 hidden">
+                                <!-- Deductions populated dynamically by script.js -->
+                            </div>
+                        </div>
+
+                        <!-- Scoring Heuristic Notice -->
+                        <p class="text-[11px] text-on-surface-variant leading-relaxed">
+                            <span class="material-symbols-outlined text-[13px] align-middle mr-0.5 text-primary">info</span>
+                            Aegis Security Score is a deterministic exposure heuristic based on observed scan findings and configured weights. It does not measure all security controls or prove exploitability.
+                        </p>
                     </div>
 
                     <!-- Details Table -->
@@ -386,6 +541,152 @@
                         <p class="text-xs text-on-surface-variant mt-1">The local scanner found zero open sockets in the target mapping profile.</p>
                     </div>
                 </section>
+
+                <!-- Network Service Fingerprints Section -->
+                <section id="service-fingerprints-section" class="bg-surface-container border border-outline-variant rounded p-4 flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-outline-variant pb-3 flex-wrap gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-[28px]">fingerprint</span>
+                            <div>
+                                <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                                    Network Service Fingerprints
+                                    <span class="px-2 py-0.5 rounded text-label-sm font-label-sm font-semibold border border-outline-variant bg-surface-container-lowest text-primary">KNOWLEDGE BASE</span>
+                                </h3>
+                                <p class="text-body-sm text-on-surface-variant text-xs mt-0.5">Educational protocol intelligence, typical usage, associated threat context, and exposure guidance</p>
+                            </div>
+                        </div>
+                        <div class="text-[11px] font-code text-on-surface-variant bg-surface-container-lowest px-2.5 py-1 rounded border border-outline-variant">
+                            Static Educational Profiles
+                        </div>
+                    </div>
+
+                    <!-- Service Fingerprint Cards Container (populated by script.js) -->
+                    <div id="fingerprints-cards-container" class="space-y-3">
+                        <!-- Dynamic expandable cards inserted here -->
+                    </div>
+
+                    <div id="fingerprints-empty-message" class="p-6 text-center text-on-surface-variant hidden">
+                        <span class="material-symbols-outlined text-4xl block mb-2 text-primary">verified</span>
+                        <h4 class="font-bold text-on-surface text-sm">No Active Services Discovered</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">Zero open TCP ports were observed under the selected scan profile.</p>
+                    </div>
+                </section>
+
+                <!-- Deterministic Remediation Playbook Section -->
+                <section id="remediation-playbook-section" class="bg-surface-container border border-outline-variant rounded p-4 flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-outline-variant pb-3 flex-wrap gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-[28px]">build_circle</span>
+                            <div>
+                                <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                                    Deterministic Remediation Playbook
+                                    <span class="px-2 py-0.5 rounded text-label-sm font-label-sm font-semibold border border-outline-variant bg-surface-container-lowest text-primary">HARDENED</span>
+                                </h3>
+                                <p class="text-body-sm text-on-surface-variant text-xs mt-0.5">Authoritative hardening playbooks, mitigation steps, and illustrative platform commands</p>
+                            </div>
+                        </div>
+                        <div class="text-[11px] font-code text-on-surface-variant bg-surface-container-lowest px-2.5 py-1 rounded border border-outline-variant">
+                            Authoritative Static Rules
+                        </div>
+                    </div>
+
+                    <!-- Operational notice banner -->
+                    <div class="p-3 bg-surface-container-low border-l-4 border-l-primary rounded-r text-xs text-on-surface-variant flex items-start gap-2">
+                        <span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">info</span>
+                        <span>These mitigation commands are illustrative templates for authorized system administrators. Commands are never dynamically executed by Aegis. Review service dependencies before terminating services.</span>
+                    </div>
+
+                    <!-- Playbook Cards Container (populated by script.js) -->
+                    <div id="remediation-cards-container" class="space-y-4">
+                        <!-- Dynamic remediation cards inserted here -->
+                    </div>
+
+                    <div id="remediation-empty-message" class="p-6 text-center text-on-surface-variant hidden">
+                        <span class="material-symbols-outlined text-4xl block mb-2 text-primary">check_circle</span>
+                        <h4 class="font-bold text-on-surface text-sm">No Immediate Remediation Required</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">Zero open TCP ports were detected for this target.</p>
+                    </div>
+                </section>
+
+                <!-- AI Security Analyst Section -->
+                <section id="ai-analyst-container" class="bg-surface-container border border-outline-variant rounded p-4 flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-outline-variant pb-3 flex-wrap gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-[28px]">psychology</span>
+                            <div>
+                                <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                                    Aegis AI Security Analyst
+                                    <span id="ai-badge-status" class="px-2 py-0.5 rounded text-label-sm font-label-sm font-semibold border border-outline-variant bg-surface-container-lowest text-on-surface-variant">READY</span>
+                                </h3>
+                                <p class="text-[12px] text-on-surface-variant font-body-sm mt-0.5">Automated exposure explanation, threat analysis, and prioritized remediation</p>
+                            </div>
+                        </div>
+                        <button type="button" id="generate-ai-btn" class="btn btn-primary text-label-md px-4 py-2 rounded font-semibold bg-primary text-on-primary hover:bg-primary-fixed-dim border border-transparent flex items-center gap-2 cursor-pointer transition-all active:scale-95">
+                            <span class="material-symbols-outlined text-[18px]" id="generate-ai-btn-icon">auto_awesome</span>
+                            <span class="btn-spinner hidden" id="generate-ai-spinner" aria-hidden="true"></span>
+                            <span id="generate-ai-btn-text">Generate AI Assessment</span>
+                        </button>
+                    </div>
+
+                    <!-- AI Status / Feedback banner (hidden by default) -->
+                    <div id="ai-status-message" class="hidden p-3 rounded text-xs border"></div>
+
+                    <!-- AI Assessment Results Display -->
+                    <div id="ai-assessment-results" class="hidden space-y-4">
+                        <!-- Security Summary -->
+                        <div class="p-3.5 rounded bg-surface-container-low border border-outline-variant">
+                            <div class="flex items-center gap-2 mb-2 text-primary">
+                                <span class="material-symbols-outlined text-[18px]">summarize</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold text-on-surface">Security Summary</h4>
+                            </div>
+                            <p id="ai-summary-text" class="text-body-sm text-on-surface leading-relaxed"></p>
+                        </div>
+
+                        <!-- Key Findings & Threat Analysis -->
+                        <div class="p-3.5 rounded bg-surface-container-low border border-outline-variant">
+                            <div class="flex items-center gap-2 mb-3 text-primary">
+                                <span class="material-symbols-outlined text-[18px]">manage_search</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold text-on-surface">Key Findings & Threat Analysis</h4>
+                            </div>
+                            <div id="ai-findings-list" class="space-y-2.5">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Priority Recommendations -->
+                        <div class="p-3.5 rounded bg-surface-container-low border border-outline-variant">
+                            <div class="flex items-center gap-2 mb-3 text-tertiary-container">
+                                <span class="material-symbols-outlined text-[18px]">format_list_numbered</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold text-on-surface">Priority Recommendations</h4>
+                            </div>
+                            <ol id="ai-recommendations-list" class="list-decimal pl-5 space-y-1.5 text-body-sm text-on-surface"></ol>
+                        </div>
+
+                        <!-- Beginner Explanation (Plain Language) -->
+                        <div class="p-3.5 rounded bg-surface-container-lowest border border-primary/30 bg-primary/5">
+                            <div class="flex items-center gap-2 mb-2 text-primary">
+                                <span class="material-symbols-outlined text-[18px]">school</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold text-primary">Beginner Explanation (Plain Language)</h4>
+                            </div>
+                            <p id="ai-beginner-text" class="text-body-sm text-on-surface-variant leading-relaxed"></p>
+                        </div>
+
+                        <!-- Remediation Verification Steps -->
+                        <div class="p-3.5 rounded bg-surface-container-low border border-outline-variant">
+                            <div class="flex items-center gap-2 mb-2 text-green-500">
+                                <span class="material-symbols-outlined text-[18px]">verified</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold text-on-surface">Remediation Verification Steps</h4>
+                            </div>
+                            <div id="ai-verification-list" class="space-y-1.5 text-code font-code text-xs text-on-surface-variant"></div>
+                        </div>
+
+                        <!-- Model & Governance Metadata -->
+                        <div class="text-[11px] text-on-surface-variant flex items-center justify-between border-t border-outline-variant pt-2 flex-wrap gap-2">
+                            <span id="ai-model-meta" class="font-code text-code text-[11px]">Engine: Aegis AI Analyst</span>
+                            <span class="text-on-surface-variant/80">Deterministic Aegis risk analyzer remains the authoritative source of truth</span>
+                        </div>
+                    </div>
+                </section>
             </div>
 
             <!-- 4. SCAN HISTORY VIEW -->
@@ -396,10 +697,16 @@
                             <h2 class="text-headline-sm font-bold">Recent Scan History</h2>
                             <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Persisted assessments retrieved from local SQLite store</p>
                         </div>
-                        <button type="button" class="btn btn-danger-outline border border-error/30 text-error bg-error/5 hover:bg-error/10 text-label-sm font-semibold rounded px-4 py-1.5 transition-all flex items-center gap-1.5" id="clear-history-btn">
-                            <span class="material-symbols-outlined text-[16px]">delete</span>
-                            <span>Clear History</span>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" class="btn bg-surface-container border border-outline-variant text-primary hover:bg-surface-container-high text-label-sm font-semibold rounded px-3 py-1.5 transition-all flex items-center gap-1.5 cursor-pointer" id="history-compare-btn">
+                                <span class="material-symbols-outlined text-[16px]">compare_arrows</span>
+                                <span>Compare Audits</span>
+                            </button>
+                            <button type="button" class="btn btn-danger-outline border border-error/30 text-error bg-error/5 hover:bg-error/10 text-label-sm font-semibold rounded px-4 py-1.5 transition-all flex items-center gap-1.5" id="clear-history-btn">
+                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                <span>Clear History</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto" id="history-table-wrapper">
@@ -426,6 +733,216 @@
                         <div>
                             <h3 class="font-bold text-on-surface text-sm">No Audits Persisted</h3>
                             <p class="text-xs text-on-surface-variant mt-1">Run an authorized port audit to record security assessment logs in the database.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SCAN COMPARISON VIEW (Exposure Diff) -->
+            <div id="view-compare" class="space-y-4 hidden">
+                <section class="bg-surface-container border border-outline-variant rounded p-4">
+                    <div class="flex items-center justify-between border-b border-outline-variant pb-3 mb-4 flex-wrap gap-2">
+                        <div class="flex flex-col gap-0.5">
+                            <h2 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-[24px]">compare_arrows</span>
+                                Scan Comparison (Exposure Diff)
+                            </h2>
+                            <span class="text-[12px] text-on-surface-variant font-body-sm">
+                                Track changes in open ports, service identification, and security exposure across audits of the same target
+                            </span>
+                        </div>
+                        <span class="px-2.5 py-1 rounded text-label-sm font-label-sm font-semibold border border-outline-variant bg-surface-container-lowest text-on-surface-variant" id="compare-status-badge">
+                            READY
+                        </span>
+                    </div>
+
+                    <!-- Comparison Selector Form -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-surface-container-low p-3.5 rounded border border-outline-variant">
+                        <div class="md:col-span-4 flex flex-col gap-1">
+                            <label for="compare-base-select" class="font-label-sm text-label-sm uppercase text-on-surface-variant font-semibold">
+                                Baseline Scan (Earlier)
+                            </label>
+                            <select id="compare-base-select" class="w-full bg-surface-container-lowest border border-outline-variant rounded px-2.5 py-1.5 font-code text-code text-xs text-on-surface focus:outline-none focus:border-primary">
+                                <option value="">Select baseline scan...</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-4 flex flex-col gap-1">
+                            <label for="compare-target-select" class="font-label-sm text-label-sm uppercase text-on-surface-variant font-semibold">
+                                Compared Scan (Later)
+                            </label>
+                            <select id="compare-target-select" class="w-full bg-surface-container-lowest border border-outline-variant rounded px-2.5 py-1.5 font-code text-code text-xs text-on-surface focus:outline-none focus:border-primary">
+                                <option value="">Select compared scan...</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-4 flex items-center gap-2">
+                            <button type="button" id="execute-compare-btn" class="w-full bg-primary text-on-primary hover:bg-primary-fixed-dim py-2 px-4 rounded font-label-md text-label-md uppercase font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 border border-transparent">
+                                <span class="material-symbols-outlined text-[18px]" id="compare-btn-icon">difference</span>
+                                <span class="btn-spinner hidden" id="compare-btn-spinner" aria-hidden="true"></span>
+                                <span id="compare-btn-text">Compare Scans</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Error Banner -->
+                    <div id="compare-error-container" class="error-banner hidden mt-4 border border-error bg-error-container/10 p-3 rounded flex gap-3 text-error">
+                        <span class="error-banner-icon">⚠️</span>
+                        <div class="error-banner-body">
+                            <strong class="error-banner-title block text-sm font-bold">Comparison Error</strong>
+                            <p id="compare-error-message" class="error-banner-text text-xs text-on-surface-variant mt-0.5"></p>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="compare-loading-container" class="hidden mt-4 p-6 bg-surface-container-low border border-outline-variant rounded text-center">
+                        <div class="cyber-spinner inline-flex items-center justify-center mb-2">
+                            <span class="material-symbols-outlined text-primary text-3xl animate-spin">sync</span>
+                        </div>
+                        <p class="text-xs text-on-surface-variant">Computing exposure delta between selected audits...</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="compare-empty-state" class="mt-4 p-8 bg-surface-container-low border border-outline-variant rounded text-center text-on-surface-variant flex flex-col items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">compare_arrows</span>
+                        <h3 class="font-bold text-on-surface text-sm">Select Two Audits of the Same Host</h3>
+                        <p class="text-xs text-on-surface-variant max-w-md">
+                            Choose two historical scans of the same target entity above to compute the exposure diff,
+                            including newly detected ports, missing services, and configuration changes.
+                        </p>
+                    </div>
+
+                    <!-- Comparison Results Display -->
+                    <div id="compare-results-container" class="hidden mt-4 space-y-4">
+                        <!-- Summary Header Strip -->
+                        <div class="p-4 rounded bg-surface-container-low border border-outline-variant flex flex-col gap-3">
+                            <div class="flex justify-between items-center flex-wrap gap-2 border-b border-outline-variant pb-3">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="font-bold text-on-surface text-base">Exposure Delta</h3>
+                                        <span class="target-chip px-2.5 py-0.5 bg-surface-container-lowest border border-outline-variant rounded font-code text-code text-xs">
+                                            Target: <strong id="compare-target-name" class="text-primary">127.0.0.1</strong>
+                                        </span>
+                                    </div>
+                                    <p id="compare-summary-text" class="text-body-sm text-on-surface mt-1"></p>
+                                </div>
+                            </div>
+
+                            <!-- Two scan cards comparison -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-code">
+                                <div class="p-3 rounded bg-surface-container-lowest border border-outline-variant flex flex-col gap-1">
+                                    <span class="font-label-sm uppercase text-on-surface-variant font-bold">Baseline Scan (Earlier)</span>
+                                    <div class="text-on-surface font-bold" id="compare-earlier-id">Scan #0</div>
+                                    <div class="text-on-surface-variant" id="compare-earlier-time">Time: -</div>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-primary" id="compare-earlier-profile">Quick Scan</span>
+                                        <span class="text-on-surface font-semibold" id="compare-earlier-ports">0 ports</span>
+                                    </div>
+                                    <div class="flex items-center justify-between mt-1 pt-1 border-t border-outline-variant/50">
+                                        <span class="text-on-surface-variant text-[11px]">Security Score:</span>
+                                        <span class="font-bold text-on-surface" id="compare-earlier-score">-</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 rounded bg-surface-container-lowest border border-outline-variant flex flex-col gap-1">
+                                    <span class="font-label-sm uppercase text-on-surface-variant font-bold">Compared Scan (Later)</span>
+                                    <div class="text-on-surface font-bold" id="compare-later-id">Scan #0</div>
+                                    <div class="text-on-surface-variant" id="compare-later-time">Time: -</div>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-primary" id="compare-later-profile">Quick Scan</span>
+                                        <span class="text-on-surface font-semibold" id="compare-later-ports">0 ports</span>
+                                    </div>
+                                    <div class="flex items-center justify-between mt-1 pt-1 border-t border-outline-variant/50">
+                                        <span class="text-on-surface-variant text-[11px]">Security Score:</span>
+                                        <span class="font-bold text-on-surface" id="compare-later-score">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Security Score Delta Banner -->
+                            <div id="compare-score-delta-banner" class="p-3 rounded bg-surface-container border border-outline-variant text-xs flex items-center justify-between flex-wrap gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-[18px]">balance</span>
+                                    <span class="font-bold text-on-surface">Score Delta:</span>
+                                    <span id="compare-score-delta-val" class="font-code font-bold text-xs px-2 py-0.5 rounded bg-surface-container-lowest border border-outline-variant">0 pts</span>
+                                </div>
+                                <span id="compare-score-delta-interpretation" class="text-on-surface-variant text-[11px] max-w-lg"></span>
+                            </div>
+
+                            <!-- Profile Discrepancy Alert (conditional) -->
+                            <div id="compare-profile-warning" class="hidden p-3 rounded bg-tertiary-container/10 border border-tertiary-container/30 text-tertiary-container text-xs flex items-start gap-2">
+                                <span class="material-symbols-outlined text-[16px] shrink-0 mt-0.5">info</span>
+                                <span id="compare-profile-warning-text"></span>
+                            </div>
+
+                            <!-- Stat Badges Strip -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+                                <div class="p-2.5 rounded bg-surface-container border border-error/30 flex flex-col items-center justify-center text-center">
+                                    <span class="text-[10px] font-label-sm uppercase text-error font-bold">Newly Detected</span>
+                                    <span class="text-lg font-code font-bold text-error" id="compare-count-new">0</span>
+                                </div>
+                                <div class="p-2.5 rounded bg-surface-container border border-tertiary-container/30 flex flex-col items-center justify-center text-center">
+                                    <span class="text-[10px] font-label-sm uppercase text-tertiary-container font-bold">Not in Later Scan</span>
+                                    <span class="text-lg font-code font-bold text-tertiary-container" id="compare-count-missing">0</span>
+                                </div>
+                                <div class="p-2.5 rounded bg-surface-container border border-primary/30 flex flex-col items-center justify-center text-center">
+                                    <span class="text-[10px] font-label-sm uppercase text-primary font-bold">Changed Service</span>
+                                    <span class="text-lg font-code font-bold text-primary" id="compare-count-changed">0</span>
+                                </div>
+                                <div class="p-2.5 rounded bg-surface-container border border-outline-variant flex flex-col items-center justify-center text-center">
+                                    <span class="text-[10px] font-label-sm uppercase text-on-surface-variant font-bold">Unchanged</span>
+                                    <span class="text-lg font-code font-bold text-on-surface" id="compare-count-unchanged">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Category 1: Newly Detected Open Ports -->
+                        <div class="bg-surface-container-low border border-outline-variant rounded p-4">
+                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant text-error">
+                                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold">Newly Detected Open Ports (Increased Exposure)</h4>
+                            </div>
+                            <div id="compare-new-ports-list" class="space-y-2 font-code text-xs">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Category 2: Ports Not Detected in Later Scan -->
+                        <div class="bg-surface-container-low border border-outline-variant rounded p-4">
+                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant text-tertiary-container">
+                                <span class="material-symbols-outlined text-[18px]">remove_circle</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold">Ports Detected Previously (Not Detected in Later Scan)</h4>
+                            </div>
+                            <div id="compare-missing-ports-list" class="space-y-2 font-code text-xs">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Category 3: Changed Service Information -->
+                        <div class="bg-surface-container-low border border-outline-variant rounded p-4">
+                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant text-primary">
+                                <span class="material-symbols-outlined text-[18px]">change_circle</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold">Changed Service & Banner Details</h4>
+                            </div>
+                            <div id="compare-changed-ports-list" class="space-y-2 font-code text-xs">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Category 4: Unchanged Ports -->
+                        <div class="bg-surface-container-low border border-outline-variant rounded p-4">
+                            <div class="flex items-center gap-2 mb-3 pb-2 border-b border-outline-variant text-on-surface-variant">
+                                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                <h4 class="font-label-md text-label-md uppercase font-bold">Unchanged Open Ports (Baseline Consistent)</h4>
+                            </div>
+                            <div id="compare-unchanged-ports-list" class="space-y-2 font-code text-xs">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Caveats Footer -->
+                        <div class="p-3 rounded bg-surface-container-lowest border border-outline-variant text-[11px] text-on-surface-variant leading-relaxed flex items-start gap-2">
+                            <span class="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">policy</span>
+                            <span id="compare-caveats-text"></span>
                         </div>
                     </div>
                 </section>
@@ -469,24 +986,44 @@
                             Export Formats
                         </h2>
                         <div class="space-y-2 flex-1 flex flex-col justify-center">
-                            <!-- Executive text format -->
-                            <button id="report-export-text-btn" class="w-full text-left bg-surface-container-lowest hover:bg-surface-container-high transition-colors border border-outline-variant rounded p-2.5 flex items-start gap-3 active:scale-[0.98]">
-                                <div class="w-8 h-8 rounded bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-                                    <span class="material-symbols-outlined text-primary text-[18px]">article</span>
+                            <!-- Executive PDF format -->
+                            <button id="report-export-pdf-btn" class="w-full text-left bg-surface-container-lowest hover:bg-surface-container-high transition-colors border border-outline-variant rounded p-2 flex items-start gap-2.5 active:scale-[0.98]">
+                                <div class="w-7 h-7 rounded bg-error/10 border border-error/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-error text-[16px]">picture_as_pdf</span>
                                 </div>
                                 <div class="flex-grow">
-                                    <div class="text-label-md font-label-md text-on-surface">Technical Text</div>
-                                    <div class="text-[10px] text-on-surface-variant">Standard ASCII report format</div>
+                                    <div class="text-label-sm font-label-sm font-bold text-on-surface">Executive PDF Report</div>
+                                    <div class="text-[10px] text-on-surface-variant">Branded assessment PDF with remediation</div>
                                 </div>
                             </button>
-                            <!-- Raw JSON format -->
-                            <button id="report-export-json-btn" class="w-full text-left bg-surface-container-lowest hover:bg-surface-container-high transition-colors border border-outline-variant rounded p-2.5 flex items-start gap-3 active:scale-[0.98]">
-                                <div class="w-8 h-8 rounded bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-                                    <span class="material-symbols-outlined text-primary text-[18px]">data_object</span>
+                            <!-- Structured CSV format -->
+                            <button id="report-export-csv-btn" class="w-full text-left bg-surface-container-lowest hover:bg-surface-container-high transition-colors border border-outline-variant rounded p-2 flex items-start gap-2.5 active:scale-[0.98]">
+                                <div class="w-7 h-7 rounded bg-tertiary-container/10 border border-tertiary-container/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-tertiary-container text-[16px]">table_chart</span>
                                 </div>
                                 <div class="flex-grow">
-                                    <div class="text-label-md font-label-md text-on-surface">Structured JSON</div>
-                                    <div class="text-[10px] text-on-surface-variant">Export raw schema findings</div>
+                                    <div class="text-label-sm font-label-sm font-bold text-on-surface">Structured CSV</div>
+                                    <div class="text-[10px] text-on-surface-variant">Spreadsheet with formula injection protection</div>
+                                </div>
+                            </button>
+                            <!-- Structured JSON format -->
+                            <button id="report-export-json-btn" class="w-full text-left bg-surface-container-lowest hover:bg-surface-container-high transition-colors border border-outline-variant rounded p-2 flex items-start gap-2.5 active:scale-[0.98]">
+                                <div class="w-7 h-7 rounded bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-primary text-[16px]">data_object</span>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="text-label-sm font-label-sm font-bold text-on-surface">Structured JSON</div>
+                                    <div class="text-[10px] text-on-surface-variant">Standard schema 1.0 findings payload</div>
+                                </div>
+                            </button>
+                            <!-- Executive text format -->
+                            <button id="report-export-text-btn" class="w-full text-left bg-surface-container-lowest hover:bg-surface-container-high transition-colors border border-outline-variant rounded p-2 flex items-start gap-2.5 active:scale-[0.98]">
+                                <div class="w-7 h-7 rounded bg-surface-variant border border-outline-variant flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-[16px]">article</span>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="text-label-sm font-label-sm font-bold text-on-surface">Technical Text</div>
+                                    <div class="text-[10px] text-on-surface-variant">Standard plain-text ASCII log report</div>
                                 </div>
                             </button>
                         </div>
@@ -578,6 +1115,99 @@
                     </div>
                 </section>
             </div>
+
+            <!-- 7. AI COPILOT VIEW -->
+            <div id="view-copilot" class="flex flex-col h-full space-y-3 hidden">
+                <!-- Copilot Header Strip -->
+                <div class="bg-surface-container border border-outline-variant rounded p-3 flex items-center justify-between flex-wrap gap-3 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-[24px]">smart_toy</span>
+                        </div>
+                        <div>
+                            <h2 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                                Aegis AI Copilot
+                                <span id="copilot-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold border border-primary/30 bg-primary/10 text-primary">READY</span>
+                            </h2>
+                            <p class="text-[11px] text-on-surface-variant">Natural-language command generation, safe in-browser execution & live analysis</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- Active Scope Badge -->
+                        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-lowest border border-outline-variant text-xs font-code">
+                            <span class="text-on-surface-variant">Scope:</span>
+                            <span id="copilot-active-target" class="font-bold text-primary">127.0.0.1</span>
+                            <span id="copilot-active-scan-badge" class="text-on-surface-variant text-[10px]">[Scan #1]</span>
+                        </div>
+
+                        <button type="button" id="copilot-new-chat-btn" class="btn text-xs font-semibold px-3 py-1.5 rounded bg-surface-container-low border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-1.5 cursor-pointer">
+                            <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+                            <span>New Session</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat History / Messages Pane -->
+                <div id="copilot-chat-container" class="flex-1 bg-surface-container border border-outline-variant rounded p-4 overflow-y-auto space-y-4 min-h-[380px]">
+                    <!-- Starter prompts banner -->
+                    <div id="copilot-welcome-card" class="p-4 rounded bg-surface-container-low border border-outline-variant flex flex-col gap-3">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary text-[28px] mt-0.5">explore</span>
+                            <div>
+                                <h3 class="text-sm font-bold text-on-surface">Welcome to Aegis AI Copilot</h3>
+                                <p class="text-xs text-on-surface-variant mt-1 leading-relaxed">
+                                    Describe your network diagnostic goal in plain English, ask questions about discovered open ports, or request advanced scans.
+                                    Copilot proposes validated command plans and lets you safely execute them directly inside Aegis.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-outline-variant">
+                            <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block mb-2">Suggested Inquiries:</span>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" class="copilot-starter-chip text-xs px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all cursor-pointer" data-prompt="Scan all TCP ports on my authorized lab machine with deep detection (-A -T4 -p-).">
+                                    Full TCP Detailed Scan (-A -T4 -p-)
+                                </button>
+                                <button type="button" class="copilot-starter-chip text-xs px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all cursor-pointer" data-prompt="Use Nmap to identify service versions on top 100 ports.">
+                                    Detect Service Versions (-sV)
+                                </button>
+                                <button type="button" class="copilot-starter-chip text-xs px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all cursor-pointer" data-prompt="Audit web services and inspect HTTP response headers on this IP.">
+                                    Bounded Web Service Check
+                                </button>
+                                <button type="button" class="copilot-starter-chip text-xs px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all cursor-pointer" data-prompt="Explain the risks associated with my current open ports and suggest a next step.">
+                                    Explain Risks & Suggest Next Step
+                                </button>
+                                <button type="button" class="copilot-starter-chip text-xs px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all cursor-pointer" data-prompt="Perform a reverse DNS lookup to identify the canonical hostname.">
+                                    Host & Reverse DNS Diagnostic
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Chat Feed -->
+                    <div id="copilot-chat-feed" class="space-y-4">
+                        <!-- Message bubbles and command cards inserted here -->
+                    </div>
+                </div>
+
+                <!-- Input Footer Bar -->
+                <div class="bg-surface-container border border-outline-variant rounded p-3 flex flex-col gap-2 shrink-0">
+                    <form id="copilot-input-form" class="flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" id="copilot-input-text" class="w-full bg-surface-container-lowest border border-outline-variant rounded px-3 py-2 text-xs font-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Ask Copilot... (e.g. 'Audit all TCP ports and detect versions on 127.0.0.1')" autocomplete="off">
+                        </div>
+                        <button type="submit" id="copilot-submit-btn" class="btn btn-primary px-4 py-2 rounded bg-primary text-on-primary font-semibold text-xs hover:bg-primary-fixed-dim transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+                            <span class="material-symbols-outlined text-[16px]">send</span>
+                            <span>Send</span>
+                        </button>
+                    </form>
+                    <div class="flex items-center justify-between text-[11px] text-on-surface-variant px-1">
+                        <span>Aegis operates under strict target authorization controls. Commands are executed without a shell.</span>
+                        <span class="font-code">Registry: 7 Safe Operations</span>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -594,6 +1224,59 @@
             <div class="modal-actions border-t border-outline-variant pt-3 flex justify-end gap-2">
                 <button type="button" class="btn bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high px-4 py-1.5 rounded text-xs font-semibold" id="modal-cancel-btn">Cancel</button>
                 <button type="button" class="btn bg-error text-on-error hover:bg-red-600 px-4 py-1.5 rounded text-xs font-semibold" id="modal-confirm-btn">Clear All Records</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copilot Command Execution Confirmation Modal -->
+    <div class="modal-backdrop hidden" id="copilot-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="copilot-modal-title">
+        <div class="modal-card max-w-lg">
+            <div class="modal-header border-b border-outline-variant pb-2 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[22px]">terminal</span>
+                    <h3 class="modal-title font-bold text-on-surface" id="copilot-modal-title">Confirm Command Execution</h3>
+                </div>
+                <button type="button" id="copilot-modal-close" class="text-on-surface-variant hover:text-on-surface p-1">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+            <div class="modal-body text-xs space-y-3 py-3">
+                <div>
+                    <label class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Target & Scope</label>
+                    <div class="flex items-center justify-between px-3 py-2 rounded bg-surface-container-lowest border border-outline-variant font-code">
+                        <span id="copilot-modal-target" class="font-bold text-primary">127.0.0.1</span>
+                        <span id="copilot-modal-operation" class="text-on-surface-variant text-[11px]">nmap_service_detection</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Proposed Execution Command</label>
+                    <pre id="copilot-modal-command" class="p-2.5 rounded bg-black/60 border border-outline-variant font-code text-xs text-primary overflow-x-auto whitespace-pre-wrap select-all">nmap -sT -sV -F 127.0.0.1</pre>
+                </div>
+
+                <div class="p-2.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1">
+                    <div class="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300">
+                        <span class="material-symbols-outlined text-[16px]">warning</span>
+                        <span>Operational Safety Notice</span>
+                    </div>
+                    <p id="copilot-modal-warning" class="text-[11px] text-on-surface-variant">
+                        This operation actively probes the destination host. Scans must only be directed at authorized infrastructure.
+                    </p>
+                </div>
+
+                <label class="flex items-start gap-2 pt-1 cursor-pointer select-none">
+                    <input type="checkbox" id="copilot-modal-auth-check" class="mt-0.5 rounded border-outline-variant text-primary focus:ring-primary">
+                    <span class="text-[11px] text-on-surface-variant leading-tight">
+                        I confirm that I have explicit authorization to assess this target and understand network scans generate active traffic.
+                    </span>
+                </label>
+            </div>
+            <div class="modal-actions border-t border-outline-variant pt-3 flex justify-end gap-2">
+                <button type="button" class="btn bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high px-4 py-1.5 rounded text-xs font-semibold" id="copilot-modal-cancel-btn">Cancel</button>
+                <button type="button" class="btn bg-primary text-on-primary hover:bg-primary-fixed-dim px-4 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50" id="copilot-modal-execute-btn" disabled>
+                    <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                    <span>Execute Command</span>
+                </button>
             </div>
         </div>
     </div>

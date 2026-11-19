@@ -6,6 +6,41 @@ import nmap
 
 logger = logging.getLogger(__name__)
 
+# The assistant can select only these reviewed profiles. Model output never
+# becomes an Nmap argument directly.
+DEFAULT_PROFILE = "quick"
+
+SCAN_PROFILES = {
+    "quick": {
+        "name": "Quick scan",
+        "arguments": "-sT -F",
+        "flags": "-sT -F",
+        "description": "Checks Nmap's 100 most common TCP ports.",
+        "caution": "Fast overview; ports outside the top 100 are not checked.",
+    },
+    "common_tcp": {
+        "name": "Common TCP ports",
+        "arguments": "-sT -p 1-1000",
+        "flags": "-sT -p 1-1000",
+        "description": "Checks TCP ports 1 through 1000.",
+        "caution": "Takes longer than the quick profile.",
+    },
+    "all_tcp": {
+        "name": "All TCP ports",
+        "arguments": "-sT -p-",
+        "flags": "-sT -p-",
+        "description": "Checks the full TCP port range.",
+        "caution": "Can take significantly longer, especially on filtered or distant hosts.",
+    },
+    "service_detection": {
+        "name": "Quick scan with service detection",
+        "arguments": "-sT -sV -F",
+        "flags": "-sT -sV -F",
+        "description": "Checks the 100 most common TCP ports and probes open ports for service/version details.",
+        "caution": "Service detection sends additional probes; use only with authorization.",
+    },
+}
+
 # Ensure Nmap binary is in the system PATH (Windows compatibility helper)
 NMAP_DEFAULT_PATH = r"C:\Program Files (x86)\Nmap"
 if NMAP_DEFAULT_PATH not in os.environ["PATH"] and os.path.exists(NMAP_DEFAULT_PATH):
@@ -48,11 +83,18 @@ def validate_target(target):
         
     return True, target
 
-def scan_target(target):
+def scan_target(target, profile_id="quick"):
     """
-    Performs a lightweight Nmap TCP port scan on the target.
-    Returns: dict of results matching the expected Day 1 format.
+    Performs a TCP port scan on the target using a locally reviewed profile.
     """
+    if profile_id not in SCAN_PROFILES:
+        return {
+            "target": target,
+            "status": "error",
+            "message": "Unknown scan profile.",
+            "ports": [],
+        }
+
     is_valid, target_or_err = validate_target(target)
     if not is_valid:
         return {
@@ -68,10 +110,11 @@ def scan_target(target):
         # Initialize the port scanner
         nm = nmap.PortScanner()
         
-        # Run a fast, lightweight TCP connect scan (-sT) on standard ports (-F = top 100 ports)
-        # We specify -sT because it does not require administrator privileges on all systems
-        # and is safe and reliable.
-        scan_results = nm.scan(hosts=sanitized_target, arguments="-sT -F")
+        # Profiles use fixed arguments; -sT does not require administrator privileges.
+        scan_results = nm.scan(
+            hosts=sanitized_target,
+            arguments=SCAN_PROFILES[profile_id]["arguments"],
+        )
         
         ports_list = []
         
@@ -102,6 +145,7 @@ def scan_target(target):
         return {
             "target": sanitized_target,
             "status": "success",
+            "profile_id": profile_id,
             "ports": ports_list
         }
         

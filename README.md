@@ -38,15 +38,36 @@ Each control is documented in [Security architecture](#security-architecture).
 
 - **Target validation before execution** — regex allowlist, length bounds, option-argument
   rejection, and DNS resolution, all applied before Nmap is called.
-- **Fast TCP connect scan** (`-sT -F`) over the top 100 ports, with Nmap's service
-  detection. `-sT` needs no administrator privileges.
-- **Transparent risk rules** — every open port is rated `HIGH`, `MEDIUM`, or `LOW` with a
-  written justification. An open port is not, by itself, proof of a vulnerability.
-- **Persistent history** — SQLite-backed scan records, per-port findings, and statistics
-  computed from the database rather than held in memory.
-- **Exportable reports** — plain-text reports generated from saved scan data.
-- **Self-contained front end** — no CDN, no inline scripts, no external fonts, so the
-  Content Security Policy can stay at `default-src 'self'`.
+- **Fast TCP connect scan** (`-sT -F`) over the top 100 ports. The AI assistant can
+  recommend broader coverage or Nmap service/version detection when useful.
+- **AI scan assistant** — describe the authorized audit goal; OpenAI recommends one of four
+  reviewed TCP scan profiles. The separate target field is not sent, and the recommendation
+  must be selected by the operator before scanning. Avoid putting targets or secrets in the
+  goal text because that text is sent to OpenAI.
+- **Deterministic Security Score (0 to 100)** — transparent, rule-based exposure heuristic calculated from base 100 points with deterministic deductions per unique exposed TCP listener: `HIGH (-25)`, `MEDIUM (-10)`, `LOW (-3)`. Bounded between 0 and 100, deduplicated by `protocol:port`, and categorized into 5 standardized score bands:
+  - `GOOD (90–100)`: Minimal exposure or low-risk listeners.
+  - `FAIR (75–89)`: Moderate exposure or single hardened service.
+  - `NEEDS IMPROVEMENT (50–74)`: Noticeable exposure or unencrypted web/administration.
+  - `POOR (25–49)`: Substantial exposure across multiple high-risk listeners.
+  - `CRITICAL (0–24)`: Extreme surface exposure requiring immediate isolation.
+- **Network Service Fingerprint Cards** — expandable educational protocol knowledge cards for detected services (covering ports 21, 22, 23, 80, 443, 135, 445, 3306, 3389, and unclassified fallbacks). Details protocol overview, typical usage, security concerns, historical threat context (with explicit non-exploitability caveats), public exposure guidance, defensive hardening steps, authoritative documentation references (RFCs, IANA, NIST), and interactive jump links to remediation playbooks.
+- **Transparent risk rules & Deterministic Remediation Playbooks** — every open port is rated `HIGH`, `MEDIUM`, or `LOW` with a written justification. Actionable hardening playbooks, mitigation steps, illustrative commands (Linux, Windows, Firewall), and verification steps are attached to each finding.
+- **Multi-Format Report Export** — download technical and executive reports in multiple formats:
+  - **Executive PDF** (`?format=pdf`): Server-side ReportLab document with Aegis branding, colored risk badges, repeating table headers, deterministic remediation playbooks, and cached AI analysis.
+  - **Structured CSV** (`?format=csv`): Tabular export with built-in CSV formula injection protection (`'`, `=`, `+`, `-`, `@`, `\t`, `\r`).
+  - **Structured JSON** (`?format=json`): Schema-validated (`schema_version: "1.0"`) findings payload.
+  - **Technical Text** (`?format=txt`): Original plain-text format for shell pipelines and backward compatibility.
+- **Scan Comparison & Exposure Diff** — compare two historical scans of the same target to identify newly detected open ports, ports not detected in the later scan, and service version shifts.
+- **Visual Risk Dashboard** — self-hosted inline SVG visualizations depicting risk severity distribution, top targets, and activity timeline.
+- **AI Security Analyst** — post-scan threat evaluation with prioritized remediation and offline heuristic fallback.
+- **Interactive AI Copilot with Dynamic Command Execution** — conversational assistant accessible from the sidebar for natural-language network diagnostic planning and safe in-browser execution:
+  - **Natural-Language Command Proposal**: Proposes validated diagnostic plans from a strict registry (Quick scan, Common TCP, All TCP, Service Version Detection `-sT -sV -F`, Full TCP Detailed `-sT -A -T4 -p-`, Bounded Web Service Check, Reverse DNS / Host Diagnostic).
+  - **Command Card Metadata**: Explains tool name, command string, purpose, arguments breakdown, performance considerations, operational impact, required permissions, and safety warnings.
+  - **In-Browser Execution (`shell=False`)**: Safe execution inside Aegis with explicit confirmation modal, fixed argument arrays, target verification, cancellation controls, and 500 KB output capping.
+  - **Automated Post-Execution Analysis**: Discovered open ports and web response observations are automatically parsed and analyzed by the AI Security Analyst with simple-English explanations and confidence ratings.
+  - **Main Report Integration**: Findings from executed commands are seamlessly integrated into downloadable PDF, CSV, JSON, and TXT reports without modifying base deterministic ratings.
+- **Persistent history** — SQLite-backed scan records, per-port findings, and statistics computed from the database rather than held in memory.
+- **Self-contained front end** — no external CDN, no inline scripts, no external fonts; strict Content Security Policy (`default-src 'self'`).
 
 ## Interface
 
@@ -84,6 +105,13 @@ These are the design references it was built from ([`design/`](design/)):
 result inside a transaction, and returns the record with its `scan_id`. Every other
 endpoint reads from the same database — nothing is recomputed from a live scan.
 
+The assistant endpoint accepts a short scan-goal description. OpenAI returns a profile ID
+from a strict schema; the application maps that ID to fixed Nmap arguments. Model output is
+never executed as a command. Available profiles are `quick` (`-sT -F`), `common_tcp`
+(`-sT -p 1-1000`), `all_tcp` (`-sT -p-`), and `service_detection` (`-sT -sV -F`). The last
+two can take longer or send additional probes. The operator reviews and applies a suggestion
+before starting a scan.
+
 ### Risk model
 
 Ratings come from an explicit table in [`risk_analyzer.py`](risk_analyzer.py), matched by
@@ -103,9 +131,13 @@ A scan's overall rating is the highest rating among its findings.
 .
 ├── app.py                 # Flask routes, security headers, rate limiting
 ├── scanner.py             # Target validation and the Nmap invocation
-├── risk_analyzer.py       # Rule-based port/service risk table
+├── ai_assistant.py        # OpenAI profile recommendation and response validation
+├── risk_analyzer.py       # Deterministic risk rules and Security Score calculator
+├── service_fingerprints.py # Educational service fingerprint knowledge base
+├── export_service.py      # Unified multi-format report exporter (PDF, CSV, JSON, TXT)
+├── comparator.py          # Scan comparison (exposure diff) engine
 ├── database.py            # SQLite schema and parameterised queries
-├── test_app.py            # Regression suite (no live scan, Nmap mocked)
+├── test_app.py            # 43 automated regression tests (no live scan, Nmap mocked)
 ├── requirements.txt       # Python dependencies
 ├── package.json           # Tailwind CSS v4 build toolchain
 ├── templates/
@@ -152,10 +184,14 @@ On Windows, activate with `venv\Scripts\activate` instead. Then install dependen
 pip install -r requirements.txt
 ```
 
-Optionally copy the environment template and fill it in:
+The application reads configuration from process environment variables. Copying
+`.env.example` does not load it automatically; set the variables in the same shell or
+service environment that starts Flask. For example, in PowerShell:
 
-```bash
-cp .env.example .env
+```powershell
+$env:OPENAI_API_KEY = "your-api-key"
+$env:OPENAI_MODEL = "gpt-6-astra"
+python app.py
 ```
 
 ### Running
@@ -169,12 +205,15 @@ at `instance/aegis_scanner.db`.
 
 ### Configuration
 
-Both variables are read from the environment; neither is required for local use.
+These variables are read from the environment. The API key is required only for AI
+recommendations; scans can still use the default quick profile without it.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `SECRET_KEY` | random `os.urandom(32)` per start | Flask session signing key. Set explicitly for any real deployment. |
 | `FLASK_DEBUG` | `false` | Set to `true` only for local debugging — it exposes the Werkzeug interactive console. |
+| `OPENAI_API_KEY` | unset | Enables AI scan recommendations. Keep it server-side; never put it in browser code. |
+| `OPENAI_MODEL` | `gpt-6-astra` | OpenAI model used for recommendations. |
 
 ### Modifying the styling
 
@@ -198,11 +237,16 @@ Use `npm run dev:css` to rebuild on change while developing.
 | --- | --- | --- |
 | `GET` | `/` | Dashboard |
 | `POST` | `/api/scan` | Scan and persist a target. Body: `{ "target": "127.0.0.1" }`. Limited to 10 req/min per IP. |
+| `POST` | `/api/assistant/recommend` | Recommend a reviewed scan profile from `{ "need": "..." }`. Limited to 20 req/min per IP. |
 | `GET` | `/api/history` | Recent scans, newest first |
 | `DELETE` | `/api/history` | Permanently clear all scans and findings |
-| `GET` | `/api/scan/<scan_id>` | Saved scan metadata plus individual findings |
+| `GET` | `/api/scan/<scan_id>` | Saved scan metadata plus individual findings with deterministic remediation playbook |
 | `GET` | `/api/stats` | Database-backed totals by risk level |
-| `GET` | `/api/scan/<scan_id>/export` | Plain-text report for a saved scan |
+| `GET` | `/api/stats/visualizations` | Aggregated datasets for SVG visualizations (risk distribution, top targets, scan timeline) |
+| `GET` | `/api/scan/compare` | Exposure diff comparison between two historical scans of the same target (`?base_id=1&target_id=2`) |
+| `GET` | `/api/ai/analyze/<scan_id>` | Retrieve cached post-scan AI Security Analyst report |
+| `POST` | `/api/ai/analyze/<scan_id>` | Run post-scan AI Security Analyst evaluation with offline heuristic fallback |
+| `GET` | `/api/scan/<scan_id>/export` | Multi-format export dispatcher: `?format=txt` (default), `?format=pdf` (ReportLab executive PDF), `?format=csv` (injection-safe CSV), `?format=json` (schema 1.0) |
 
 <details>
 <summary><strong>Example</strong> — <code>POST /api/scan</code></summary>
@@ -243,9 +287,12 @@ touches the network and needs no Nmap binary:
 python -m unittest -v test_app.py
 ```
 
-Seven tests cover request validation, malformed JSON handling, persistence across
+Forty-three automated tests cover request validation, malformed JSON handling, persistence across
 history/details/stats/export, security headers, secret-key configuration, rate-limit
-enforcement, and history deletion. CI runs them on Python 3.12 and 3.13 across Ubuntu and
+enforcement, history deletion, AI analysis caching and offline fallback, visual risk dashboard statistics,
+exposure diff comparison across 12 edge cases, deterministic remediation playbooks, multi-format exports
+(PDF, CSV, JSON, TXT), CSV formula injection defenses, Service Fingerprint knowledge cards, and the
+deterministic Security Score (0 to 100) scoring heuristic. CI runs them on Python 3.12 and 3.13 across Ubuntu and
 Windows.
 
 For a live end-to-end check, scan `127.0.0.1` from the dashboard. An invalid target such as
